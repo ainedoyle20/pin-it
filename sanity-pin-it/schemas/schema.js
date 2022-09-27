@@ -8,6 +8,8 @@ import user from './user';
 import postedBy from './postedBy';
 import comments from './comments';
 import pin from './pin';
+import board from './board';
+import savedPin from './savedPin';
 
 // Then we give our schema to the builder and provide the result to Sanity
 export default createSchema({
@@ -21,5 +23,7 @@ export default createSchema({
     postedBy,
     comments,
     pin,
+    board,
+    savedPin,
   ]),
 });

@@ -14,8 +14,8 @@ export default {
       type: 'string',
     },
     {
-      name: 'category',
-      title: 'Category',
+      name: 'board',
+      title: 'Board',
       type: 'string',
     }
   ],

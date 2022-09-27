@@ -7,17 +7,23 @@ import { AiTwotoneDelete } from 'react-icons/ai';
 import { BsFillArrowUpRightCircleFill } from 'react-icons/bs';
 
 import { client, urlFor } from '../lib/client';
+import ChooseBoard from './ChooseBoard';
+import CreateBoard from './CreateBoard';
 
 const Pin = ({ pin, userId }) => {
   const [postHovered, setPostHovered] = useState(false);
   const [savingPost, setSavingPost] = useState(false);
   // const [userId, setUserId] = useState(null);
   const [alreadySaved, setAlreadySaved] = useState(false);
+  const [showChooseBoard, setShowChooseBoard] = useState(false);
+  const [selectedBoard, setSelectedBoard] = useState(null);
+  const [showCreateBoard, setShowCreateBoard] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
 
   const router = useRouter();
 
   const { postedBy, image, _id, destination } = pin;
-  // console.log(urlFor(image).url());
+  // console.log(typeof _id);
 
   useEffect(() => {
     if (!userId) {
@@ -38,32 +44,55 @@ const Pin = ({ pin, userId }) => {
       });
   };
 
-  const savePin = (id) => {
-    if (!alreadySaved) {
-      setSavingPost(true);
+  // const savePin = (id) => {
+  //   if (!alreadySaved) {
+  //     setSavingPost(true);
 
-      client
-        .patch(id)
-        .setIfMissing({ save: [] })
-        .insert('after', 'save[-1]', [{
-          _key: uuidv4(),
-          userId,
-          postedBy: {
-            _type: 'postedBy',
-            _ref: `${userId}`,
-          },
-        }])
-        .commit()
-        .then(() => {
-          setAlreadySaved(true);
-          setSavingPost(false);
-          // Deploy success banner
-        })
-        .catch((err) => console.log('Error saving pin: ', err));
+  //     client
+  //       .patch(id)
+  //       .setIfMissing({ save: [] })
+  //       .insert('after', 'save[-1]', [{
+  //         _key: uuidv4(),
+  //         userId,
+  //         postedBy: {
+  //           _type: 'postedBy',
+  //           _ref: `${userId}`,
+  //         },
+  //       }])
+  //       .commit()
+  //       .then(() => {
+  //         setAlreadySaved(true);
+  //         setSavingPost(false);
+  //         // Deploy success banner
+  //       })
+  //       .catch((err) => console.log('Error saving pin: ', err));
+  //   }
+  // };
+
+  const savePin = (boardId) => {
+    if (!boardId) {
+      return;
     }
-  };
+    client
+     .patch(boardId)
+     .setIfMissing({ savedPins: [] })
+     .insert('after', 'savedPins[-1]', [{
+      _key: uuidv4(),
+      _type: 'savedPin',
+      _ref: `${_id}`
+     }])
+     .commit()
+     .catch(error => console.log("Error saving pin: ", error));
+  }
+
+  const handleCreateBoard = () => {
+    setSelectedId(_id);
+    setShowChooseBoard(false);
+    setShowCreateBoard(true);
+  }
 
   return (
+    <>
     <div className="m-2">
       <div
         onMouseEnter={() => setPostHovered(true)}
@@ -80,17 +109,14 @@ const Pin = ({ pin, userId }) => {
             style={{ height: '100%' }}
           >
             <div className="flex items-center justify-between">
-              <div className="flex gap-2">
-                <a
-                  href={`${image?.asset?.url}?dl=`}
-                  download
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  className="bg-white w-9 h-9 p-2 rounded-full flex items-center justify-center text-dark text-xl opacity-75 hover:opacity-100 hover:shadow-md outline-none"
-                ><MdDownloadForOffline />
-                </a>
-              </div>
+              {/* <span 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowChooseBoard(true);
+                }}
+                className="cursor-pointer text-white"
+              >{selectedBoard}</span> */}
+
               {alreadySaved ? (
                 <button type="button" disabled className="bg-red-500 opacity-70 text-white font-bold px-5 py-1 text-base rounded-3xl hover:shadow-md outline-none">
                   Saved
@@ -99,7 +125,7 @@ const Pin = ({ pin, userId }) => {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    savePin(_id);
+                    setShowChooseBoard(true);
                   }}
                   type="button"
                   className="bg-red-500 opacity-70 hover:opacity-100 text-white font-bold px-5 py-1 text-base rounded-3xl hover:shadow-md outline-none"
@@ -122,20 +148,34 @@ const Pin = ({ pin, userId }) => {
                   {destination?.slice(8, 17)}...
                 </a>
               ) : undefined}
-              {
-           postedBy?._id === userId && (
-           <button
-             type="button"
-             onClick={(e) => {
-               e.stopPropagation();
-               deletePin(_id);
-             }}
-             className="bg-white p-2 rounded-full w-8 h-8 flex items-center justify-center text-dark opacity-75 hover:opacity-100 outline-none"
-           >
-             <AiTwotoneDelete />
-           </button>
-           )
-        }
+
+              <div className="flex gap-2">
+                <a
+                  href={`${image?.asset?.url}?dl=`}
+                  download
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  className="bg-white w-9 h-9 p-2 rounded-full flex items-center justify-center text-dark text-xl opacity-75 hover:opacity-100 hover:shadow-md outline-none"
+                ><MdDownloadForOffline />
+                </a>
+
+                {
+                  postedBy?._id === userId && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deletePin(_id);
+                    }}
+                    className="bg-white p-2 rounded-full w-9 h-9 flex items-center justify-center text-dark opacity-75 hover:opacity-100 outline-none"
+                  >
+                    <AiTwotoneDelete />
+                  </button>
+                  )
+                }
+              </div>
+            
             </div>
           </div>
         )}
@@ -150,7 +190,31 @@ const Pin = ({ pin, userId }) => {
         <p className="font-semibold capitalize text-lg">{postedBy?.userName}</p>
         </div>
       </Link>
+
+      {showChooseBoard ? (
+        <ChooseBoard 
+          setShowChooseBoard={setShowChooseBoard} 
+          savePin={savePin} 
+          handleCreateBoard={handleCreateBoard} 
+          userId={userId}
+          pinId={_id}
+        />
+      ) : (
+        null
+      )}
     </div>
+    
+    {showCreateBoard ? (
+      <CreateBoard 
+        setShowCreateBoard={setShowCreateBoard} 
+        userId={userId} 
+        pinId={selectedId} 
+      />
+    ): (
+      null
+    )
+    }
+  </>
   );
 };
 

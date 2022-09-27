@@ -15,20 +15,10 @@ const SignUp = () => {
     confirmPassword: '',
   });
   const [imageAsset, setImageAsset] = useState();
-  const [signingUp, setSigningUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [wrongImageType, setWrongImageType] = useState(false);
 
   const router = useRouter();
-
-  useEffect(() => {
-    if(signingUp) return;
-
-    console.log('Checking for user', signingUp);
-
-    const user = localStorage.getItem('user') !== 'undefined' ? JSON.parse(localStorage.getItem('user')) : localStorage.clear();
-    if (user) router.replace("/");
-  }, [signingUp]);
 
   const uploadImage = (e) => {
     const selectedFile = e.target.files[0];
@@ -64,27 +54,24 @@ const SignUp = () => {
       return;
     }
 
-    const res = await handleSignUp(signUpDetails, imageAsset);
+    const success = await handleSignUp(signUpDetails, imageAsset);
     setSignUpDetails({
       userName: '',
-      selectedFile: {},
       websiteLink: '',
       email: '',
       password: '',
       confirmPassword: '',
     });
-    setSigningUp(true);
 
-    if (!res) {
-      setSigningUp(false);
+    if (!success) {
       alert("Sorry something went wrong, please try again later");
     } else {
-      setSigningUp(false);
+      router.replace("/");
     }
   }
 
   return (
-    <div className="shadow-2xl w-[55vw] min-h-[70vh] p-5 rounded-3xl flex flex-col">
+    <div>
       {wrongImageType ? <p>Wrong image type</p> : null}
       <div className=" flex justify-center items-center flex-col border-2 border-dotted border-gray-300 p-3 w-full h-420">
         {loading && (
@@ -169,7 +156,7 @@ const SignUp = () => {
         onChange={handleOnChange}
         required
       />
-      <button type='button' onClick={handleSubmit} disabled={signingUp}>Sign up</button>
+      <button type='button' onClick={handleSubmit}>Sign up</button>
     </div>
   );
 }

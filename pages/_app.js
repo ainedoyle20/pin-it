@@ -11,8 +11,9 @@ function MyApp({ Component, pageProps }) {
   let userId = null;
   if (typeof window !== 'undefined') {
     // Perform localStorage action
-    if (localStorage.getItem('user') !== 'undefined') {
+    if (localStorage.getItem('user') !== 'undefined' && localStorage.getItem('user') !== null) {
       userId = JSON.parse(localStorage.getItem('user')).userId; 
+      // console.log(typeof userId);
     } else {
       localStorage.clear();
     }
