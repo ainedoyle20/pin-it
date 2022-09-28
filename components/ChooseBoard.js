@@ -15,7 +15,7 @@ import { boardsQuery } from '../lib/data';
 //   { name: 'Photography', image: ''},
 // ]
 
-const ChooseBoard = ({ setShowChooseBoard, savePin, handleCreateBoard, userId, pinId }) => {
+const ChooseBoard = ({ setShowChooseBoard, savePin, handleCreateBoard, userId, pinId, widthVal, heightVal, setSelectedBoardId }) => {
   const [searchBoard, setSearchBoard] = useState("");
   const [boards, setBoards] = useState([]);
 
@@ -33,20 +33,23 @@ const ChooseBoard = ({ setShowChooseBoard, savePin, handleCreateBoard, userId, p
   }
 
   useEffect(() => {
+    console.log("widthVal: ", widthVal, "heightVal: ", heightVal);
     fetchBoards();
   }, [userId]);
 
-  // useEffect(() => {
-  //   client
-  //     .patch("BOARDID")
-  //     .unset(['savedPins[_ref=="PINID"]'])
-  //     .commit()
-  //     .then((res) => console.log(res))
-  //     .catch((error) => console.log(error))
-  // }, []);
+  const handleClickedBoard = (boardId, pinId) => {
+    if (!pinId) {
+      setSelectedBoardId(boardId);
+    } else {
+      savePin(boardId, pinId);
+    }
+    setShowChooseBoard(false);
+  }
 
   return (
-    <div className='absolute bg-white w-[400px] h-[600px] z-[100] opacity-100 rounded-xl shadow-2xl overflow-hidden'>
+    <div 
+      className={`absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] bg-white ${widthVal ? widthVal : 'w-[400px]'} ${heightVal ? heightVal : 'h-[600px]'} z-[100] opacity-100 rounded-xl shadow-2xl overflow-hidden`}
+    >
       <div className='w-full flex flex-row items-center justify-between p-3 h-[12%]'>
         <div className='w-[10%]'></div>
         <span className='text-xl'>Save</span>
@@ -75,10 +78,7 @@ const ChooseBoard = ({ setShowChooseBoard, savePin, handleCreateBoard, userId, p
           boards.map((board) => (
             <div key={`${board._id}`} 
               className="flex items-center gap-2 my-2 p-2 w-full hover:shadow-lg rounded-lg cursor-pointer" 
-              onClick={() => {
-                savePin(board._id);
-                setShowChooseBoard(false);
-              }}
+              onClick={() => handleClickedBoard(board._id, pinId)}
             >
               <div className='border-[1px] border-black w-14 h-14 rounded-lg'></div>
               <span>{board.name} {board.name === 'Profile' ? '(Default)' : ''}</span>

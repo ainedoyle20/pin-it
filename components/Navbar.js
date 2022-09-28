@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -6,11 +6,14 @@ import { AiOutlineDown } from "react-icons/ai";
 
 import Searchbar from './Searchbar';
 import logo from '../assets/pinterest-logo.png';
+import Dropdown from './Dropdown';
 
 const activeStyles = 'bg-black text-white h-full py-2 px-3 rounded-3xl cursor-pointer';
 const activeStylesProfile = 'bg-black text-white border-[1px] border-black h-full w-12 rounded-3xl';
 
-const Navbar = () => {
+const Navbar = ({ userId }) => {
+  const [showDropdown, setShowDropdown] = useState(false);
+
   const router = useRouter();
   const currentRoute = router.pathname;
 
@@ -32,14 +35,22 @@ const Navbar = () => {
           </Link>
         </div>
         <Searchbar/>
-        <Link href="/profile/someId">
-          <button className={currentRoute === '/profile/[id]' ? activeStylesProfile : 'border-[1px] border-black h-10 w-12 rounded-3xl hover:bg-[#e9e9e9]'}>
+        <Link href={`/profile/${userId}`}>
+          <button 
+            type='button'
+            className={currentRoute === '/profile/[id]' ? activeStylesProfile : 'border-[1px] border-black h-10 w-12 rounded-3xl hover:bg-[#e9e9e9]'}
+          >
             A
           </button>
         </Link>
-        <button className='border-[1px] border-black h-10 w-12 rounded-3xl cursor-pointer flex justify-center items-center hover:bg-[#e9e9e9]'>
+        <button 
+          type='button'
+          className='border-[1px] border-black h-10 w-12 rounded-3xl cursor-pointer flex justify-center items-center hover:bg-[#e9e9e9]'
+          onClick={() => setShowDropdown(!showDropdown)}
+        >
           <AiOutlineDown fontWeight={40} />
         </button>
+        {showDropdown ? <Dropdown /> : null}
       </div>
     </div>
   );

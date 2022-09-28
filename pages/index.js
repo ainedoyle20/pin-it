@@ -11,6 +11,16 @@ const Home = ({ pins, userId }) => {
     if (!userId) router.replace("/login");
   }, [userId]);
 
+  if (!pins) {
+    return (
+      <div className='w-screen h-screen flex justify-center items-center'>
+        <span className='text-2xl'>
+          Loading...
+        </span>
+      </div>
+    )
+  }
+
   return (
    <>
       <PinsContainer pins={pins} userId={userId} />

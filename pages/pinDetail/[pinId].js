@@ -19,19 +19,11 @@ const PinDetail = ({ pinDetail, similarPins, userId }) => {
     const pinUrl = image ? (urlFor(image).url()) : null;
 
     useEffect(() => {
-      console.log('running');
+      console.log('similarPins: ', similarPins);
       if (!userId) {
         router.replace("/login");
       }
     }, [userId]);
-
-    useEffect(() => {
-      if (!userId) return;
-      let alreadySaved = !!(save?.filter((item) => item?.postedBy?._id === userId).length);
-      // console.log({ alreadySaved });
-      setAlreadySaved(alreadySaved);
-    }, [userId]);
-
 
     const savePin = (id) => {
       if (!alreadySaved) {
@@ -62,9 +54,9 @@ const PinDetail = ({ pinDetail, similarPins, userId }) => {
     // console.log(!!(save?.filter(item => item.postedBy?._id === userId).length));
     // console.log(pinDetail, { similarPins });
     return (
-        <div className="h-screen overflow-scroll flex flex-col justify-center items-center pt-3">
+        <div className="min-h-screen overflow-scroll flex flex-col items-center pt-20">
             <div 
-                className="shadow-2xl w-[80vw] min-h-[55vh] rounded-[5%] flex flex-row"
+                className="shadow-2xl w-[90vw] min-h-[75vh] rounded-[5%] flex flex-row mt-8 mb-24"
             >
                 <div className='w-[50%] border-r-2 border-r-black p-5'>
                     <PinImage pinUrl={pinUrl} destination={destination} />
@@ -166,8 +158,14 @@ const PinDetail = ({ pinDetail, similarPins, userId }) => {
 
             {similarPins?.length ? (
                 <>
-                    <h2 className="font-extrabold text-xl mt-10">More Like This</h2> 
-                    <MasonryLayout pins={similarPins} />
+                    <h2 className="font-bold text-2xl mb-8">More Like This</h2>
+
+                    <div
+                      className="w-full h-full px-14"
+                    >
+                      <MasonryLayout pins={similarPins} userId={userId} />
+                    </div> 
+                    
                 </>
             )
             : null
@@ -178,23 +176,23 @@ const PinDetail = ({ pinDetail, similarPins, userId }) => {
 }
 
 export const getServerSideProps = async (context) => {
-    const id = context.params.pinId;
-    const pinDetailQ = pinDetailQuery(id);
+  const id = context.params.pinId;
+  const pinDetailQ = pinDetailQuery(id);
 
-    const pinDetail = await client.fetch(pinDetailQ);
-    let similarPins = null;
+  const pinDetail = await client.fetch(pinDetailQ);
+  let similarPins = null;
 
-    if (pinDetail[0]) {
-        const similarPinsQ = similarPinsQuery(pinDetail[0]);
-        similarPins = await client.fetch(similarPinsQ);
+  if (pinDetail[0]) {
+    const similarPinsQ = similarPinsQuery(pinDetail[0]);
+    similarPins = await client.fetch(similarPinsQ);
+  }
+
+  return {
+    props: {
+        pinDetail,
+        similarPins,  
     }
-
-    return {
-        props: {
-            pinDetail,
-            similarPins,  
-        }
-    }
+  }
 }
 
 export default PinDetail;

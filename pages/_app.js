@@ -1,12 +1,15 @@
 import React, {useEffect, useState} from 'react';
+import Router from 'next/router';
 import Layout from '../components/Layout';
+import Navbar from '../components/Navbar';
 import '../styles/globals.css';
 
-import { client, urlFor } from '../lib/client';
+import { client } from '../lib/client';
 import { userQuery } from '../lib/data';
 
 function MyApp({ Component, pageProps }) {
   const [userDetails, setUserDetails] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   let userId = null;
   if (typeof window !== 'undefined') {
@@ -27,17 +30,43 @@ function MyApp({ Component, pageProps }) {
   }
 
   useEffect(() => {
+    const start = () => {
+      console.log("start");
+      setLoading(true);
+    };
+    const end = () => {
+      console.log("finished");
+      setLoading(false);
+    };
+    Router.events.on("routeChangeStart", start);
+    Router.events.on("routeChangeComplete", end);
+    Router.events.on("routeChangeError", end);
+    return () => {
+      Router.events.off("routeChangeStart", start);
+      Router.events.off("routeChangeComplete", end);
+      Router.events.off("routeChangeError", end);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!userId) return;
 
     getUserDetails(userId);
   }, [userId])
 
-  const someVal = '123';
-
   return (
-    <Layout>
-      <Component {...pageProps} userId={userId} userDetails={userDetails} someVal={someVal} />
-    </Layout>
+    <>
+    {loading ? (
+      <h2 className='text-3xl font-bold'>Loading...</h2>
+    ) : (
+      <>
+      {/* <Layout> */}
+        <Navbar {...pageProps} userId={userId} />
+        <Component {...pageProps} userId={userId} userDetails={userDetails} />
+      {/* </Layout> */}
+      </>
+    )}
+    </>
   );
 }
 

@@ -6,8 +6,8 @@ const PinsContainer = ({ pins, userId }) => {
   if (!pins) return <h2>No pins created yet</h2>;
 
   return (
-    <div className='w-full h-screen overflow-scroll border-2 border-black px-20 pt-20'>
-      <div className='border-2 border-black h-full'>
+    <div className='w-full h-screen overflow-scroll px-10 md:px-16 pt-20'>
+      <div className='h-full'>
         {pins && (
           <MasonryLayout pins={pins} userId={userId} />
         )}

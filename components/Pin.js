@@ -1,29 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { v4 as uuidv4 } from 'uuid';
+// import { v4 as uuidv4 } from 'uuid';
 import { MdDownloadForOffline } from 'react-icons/md';
 import { AiTwotoneDelete } from 'react-icons/ai';
 import { BsFillArrowUpRightCircleFill } from 'react-icons/bs';
 
 import { client, urlFor } from '../lib/client';
+import { savePin } from '../lib/utils';
 import ChooseBoard from './ChooseBoard';
 import CreateBoard from './CreateBoard';
 
-const Pin = ({ pin, userId }) => {
+const Pin = ({ pin, userId, selectedPins, togglePin }) => {
   const [postHovered, setPostHovered] = useState(false);
   const [savingPost, setSavingPost] = useState(false);
-  // const [userId, setUserId] = useState(null);
   const [alreadySaved, setAlreadySaved] = useState(false);
   const [showChooseBoard, setShowChooseBoard] = useState(false);
-  const [selectedBoard, setSelectedBoard] = useState(null);
+  // const [selectedBoard, setSelectedBoard] = useState(null);
   const [showCreateBoard, setShowCreateBoard] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
 
   const router = useRouter();
 
   const { postedBy, image, _id, destination } = pin;
-  // console.log(typeof _id);
 
   useEffect(() => {
     if (!userId) {
@@ -31,10 +30,10 @@ const Pin = ({ pin, userId }) => {
     }
   }, [userId]);
 
-  useEffect(() => {
-    let alreadySaved = !!(pin?.save?.filter((item) => item?.postedBy?._id === userId).length);
-    setAlreadySaved(alreadySaved);
-  }, []);
+  // useEffect(() => {
+  //   let alreadySaved = !!(pin?.save?.filter((item) => item?.postedBy?._id === userId).length);
+  //   setAlreadySaved(alreadySaved);
+  // }, []);
 
   const deletePin = (id) => {
     client
@@ -44,61 +43,40 @@ const Pin = ({ pin, userId }) => {
       });
   };
 
-  // const savePin = (id) => {
-  //   if (!alreadySaved) {
-  //     setSavingPost(true);
-
-  //     client
-  //       .patch(id)
-  //       .setIfMissing({ save: [] })
-  //       .insert('after', 'save[-1]', [{
-  //         _key: uuidv4(),
-  //         userId,
-  //         postedBy: {
-  //           _type: 'postedBy',
-  //           _ref: `${userId}`,
-  //         },
-  //       }])
-  //       .commit()
-  //       .then(() => {
-  //         setAlreadySaved(true);
-  //         setSavingPost(false);
-  //         // Deploy success banner
-  //       })
-  //       .catch((err) => console.log('Error saving pin: ', err));
-  //   }
-  // };
-
-  const savePin = (boardId) => {
-    if (!boardId) {
-      return;
-    }
-    client
-     .patch(boardId)
-     .setIfMissing({ savedPins: [] })
-     .insert('after', 'savedPins[-1]', [{
-      _key: uuidv4(),
-      _type: 'savedPin',
-      _ref: `${_id}`
-     }])
-     .commit()
-     .catch(error => console.log("Error saving pin: ", error));
-  }
-
   const handleCreateBoard = () => {
     setSelectedId(_id);
     setShowChooseBoard(false);
     setShowCreateBoard(true);
   }
 
+  // console.log(router.pathname);
+
+  const handlePinClick = (id) => {
+    if (router.pathname === '/profile/[id]' && selectedPins) {
+      console.log('In organise board');
+      togglePin(id);
+    } else {
+      console.log('not in organise board');
+      router.push(`/pinDetail/${id}`);
+    }
+  }
+
   return (
     <>
-    <div className="m-2">
+    <div className={`m-2 ${selectedPins?.includes(_id) ? 'border-2 border-black rounded-lg' : ''}`}>
       <div
-        onMouseEnter={() => setPostHovered(true)}
-        onMouseLeave={() => setPostHovered(false)}
-        onClick={() => router.push(`/pinDetail/${_id}`)}
-        className="relative cursor-zoom-in w-auto h-auto hover:shadow-lg rounded-lg"
+        onMouseEnter={() => {
+          if (!selectedPins) {
+            setPostHovered(true) 
+          }
+        }}
+        onMouseLeave={() => {
+          if (!selectedPins) {
+            setPostHovered(false)
+          }
+        }}
+        onClick={() => handlePinClick(_id)}
+        className={`relative ${selectedPins ? 'cursor-pointer' : 'cursor-zoom-in'}  w-auto h-auto hover:shadow-lg rounded-lg`}
       >
         {image && (
           <img className="rounded-lg w-full" src={(urlFor(image).width(300).url())} alt="user-post" /> 
