@@ -10,6 +10,7 @@ import comments from './comments';
 import pin from './pin';
 import board from './board';
 import savedPin from './savedPin';
+import tuneFeed from './tuneFeed';
 
 // Then we give our schema to the builder and provide the result to Sanity
 export default createSchema({
@@ -25,5 +26,6 @@ export default createSchema({
     pin,
     board,
     savedPin,
+    tuneFeed,
   ]),
 });

@@ -21,9 +21,20 @@ const breakpointColumnsObj = {
   500: 1,
 };
 
-const MasonryLayout = ({ pins, userId, selectedPins, togglePin }) => (
+const MasonryLayout = ({ pins, userId, selectedPins, togglePin, editBoard, handleRemovePin, disableRemoveBtn }) => (
   <Masonry className="flex" breakpointCols={breakpointColumnsObj}>
-    {pins?.map((pin) => <Pin key={pin._id} pin={pin} userId={userId} selectedPins={selectedPins} togglePin={togglePin} />)}
+    {pins?.map((pin) => (
+      <Pin 
+        key={pin._id} 
+        pin={pin} 
+        userId={userId} 
+        selectedPins={selectedPins} 
+        togglePin={togglePin} 
+        editBoard={editBoard}
+        handleRemovePin={handleRemovePin}
+        disableRemoveBtn={disableRemoveBtn}
+      />
+    ))}
   </Masonry>
 );
 

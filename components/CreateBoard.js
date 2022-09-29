@@ -2,18 +2,21 @@ import React, {useState} from 'react';
 
 import { handleCreateBoardWithPin, handleCreateBoard } from '../lib/utils';
 
-const CreateBoard = ({ setShowCreateBoard, userId, pinId }) => {
+const CreateBoard = ({ setShowCreateBoard, userId, pinId, setSavingPost, setPostSaved }) => {
   const [boardName, setBoardName] = useState('');
 
-
-  console.log('userId: ', userId, 'pinId: ', pinId);
+  // console.log('userId: ', userId, 'pinId: ', pinId);
 
   const handleCreate = () => {
     if (pinId) {
+      setSavingPost(true);
+
       const success = handleCreateBoardWithPin(boardName, userId, pinId);
 
       if (success) {
         console.log("Success!");
+        setSavingPost(false);
+        setPostSaved(true);
         setShowCreateBoard(false);
       } else {
         console.log("Failed");

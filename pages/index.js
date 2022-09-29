@@ -1,17 +1,37 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import { useRouter } from 'next/router';
 
 import PinsContainer from '../components/PinsContainer';
 import { client } from '../lib/client';
 import { pinsQuery } from '../lib/data';
 
-const Home = ({ pins, userId }) => {
+const Home = ({ pins, userId, userDetails }) => {
+  const [filteredPins, setFilteredPins] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   const router = useRouter();
+
   useEffect(() => {
     if (!userId) router.replace("/login");
   }, [userId]);
 
-  if (!pins) {
+  useEffect(() => {
+    if (!userDetails) return;
+
+    const {tuneFeed} = userDetails;
+
+    if (!tuneFeed) {
+      setLoading(false);
+      return;
+    } else {
+      const newPins = pins.filter((pin) => tuneFeed?.find(theme => theme.name === pin.category));
+
+      setFilteredPins(newPins); 
+      setLoading(false);
+    }
+  }, [userDetails])
+
+  if (!userDetails || loading) {
     return (
       <div className='w-screen h-screen flex justify-center items-center'>
         <span className='text-2xl'>
@@ -23,7 +43,7 @@ const Home = ({ pins, userId }) => {
 
   return (
    <>
-      <PinsContainer pins={pins} userId={userId} />
+      <PinsContainer pins={filteredPins} userId={userId} />
    </>
   );
 }

@@ -49,9 +49,11 @@ function MyApp({ Component, pageProps }) {
   }, []);
 
   useEffect(() => {
-    if (!userId) return;
-
-    getUserDetails(userId);
+    if (!userId) {
+      setUserDetails(null);
+    } else {
+      getUserDetails(userId);
+    }
   }, [userId])
 
   return (
@@ -61,7 +63,7 @@ function MyApp({ Component, pageProps }) {
     ) : (
       <>
       {/* <Layout> */}
-        <Navbar {...pageProps} userId={userId} />
+        <Navbar {...pageProps} userId={userId} userDetails={userDetails}  />
         <Component {...pageProps} userId={userId} userDetails={userDetails} />
       {/* </Layout> */}
       </>

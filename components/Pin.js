@@ -11,7 +11,7 @@ import { savePin } from '../lib/utils';
 import ChooseBoard from './ChooseBoard';
 import CreateBoard from './CreateBoard';
 
-const Pin = ({ pin, userId, selectedPins, togglePin }) => {
+const Pin = ({ pin, userId, selectedPins, togglePin, editBoard, handleRemovePin, disableRemoveBtn }) => {
   const [postHovered, setPostHovered] = useState(false);
   const [savingPost, setSavingPost] = useState(false);
   const [alreadySaved, setAlreadySaved] = useState(false);
@@ -66,17 +66,21 @@ const Pin = ({ pin, userId, selectedPins, togglePin }) => {
     <div className={`m-2 ${selectedPins?.includes(_id) ? 'border-2 border-black rounded-lg' : ''}`}>
       <div
         onMouseEnter={() => {
-          if (!selectedPins) {
+          if (selectedPins || editBoard) {
+            return;
+          } else {
             setPostHovered(true) 
           }
         }}
         onMouseLeave={() => {
-          if (!selectedPins) {
+          if (selectedPins || editBoard) {
+            return;
+          } else {
             setPostHovered(false)
           }
         }}
         onClick={() => handlePinClick(_id)}
-        className={`relative ${selectedPins ? 'cursor-pointer' : 'cursor-zoom-in'}  w-auto h-auto hover:shadow-lg rounded-lg`}
+        className={`relative ${selectedPins ? 'cursor-pointer' : editBoard ? 'cursor-default' : 'cursor-zoom-in'}  w-auto h-auto hover:shadow-lg rounded-lg`}
       >
         {image && (
           <img className="rounded-lg w-full" src={(urlFor(image).width(300).url())} alt="user-post" /> 
@@ -156,6 +160,19 @@ const Pin = ({ pin, userId, selectedPins, togglePin }) => {
             
             </div>
           </div>
+        )}
+        {editBoard && (
+          <button
+            type='button'
+            className='absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] px-5 py-3 rounded-3xl bg-gray-100 text-xl hover:bg-gray-200'
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRemovePin(_id)
+            }}
+            disabled={disableRemoveBtn}
+          >
+            {disableRemoveBtn ? 'Loading...' : 'Remove'}
+          </button>
         )}
       </div>
       <Link href={`/profile/${postedBy._id}`}>

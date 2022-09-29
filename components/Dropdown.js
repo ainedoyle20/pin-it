@@ -1,10 +1,11 @@
 import React, {useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { handleSignOut } from '../lib/utils';
 import { userQuery } from '../lib/data';
 import { client, urlFor } from '../lib/client';
 
-const Dropdown = () => {
+const Dropdown = ({ setShowTuneFeed, setShowDropdown, userId }) => {
   const [userDetails, setUserDetails] = useState(null);
 
   const router = useRouter();
@@ -53,9 +54,21 @@ const Dropdown = () => {
               </span>
             </div>
 
-            <span className='text-xl p-2 px-5 rounded-lg hover:shadow-lg my-2 cursor-pointer'>Add account</span>
-            <span className='text-xl p-2 px-5 rounded-lg hover:shadow-lg my-2 cursor-pointer'>Edit profile</span>
-            <span className='text-xl p-2 px-5 rounded-lg hover:shadow-lg my-2 cursor-pointer'>Tune Feed</span>
+            <Link href={`/profile/edit/${userId}`}>
+              <span className='text-xl p-2 px-5 rounded-lg hover:shadow-lg my-2 cursor-pointer'
+              >
+                Edit profile
+              </span>
+            </Link>
+            <span 
+              className='text-xl p-2 px-5 rounded-lg hover:shadow-lg my-2 cursor-pointer'
+              onClick={() => {
+                setShowTuneFeed(true);
+                setShowDropdown(false);
+              }}
+            >
+              Tune Feed
+            </span>
   
             <div className='w-full flex justify-start px-3 py-3'>
               <button

@@ -1,59 +1,68 @@
 import React, {useState, useEffect} from "react";
 import Link from "next/link";
 import { FaDownload } from 'react-icons/fa';
-import { FiChevronDown } from "react-icons/fi";
 import {GrDown} from 'react-icons/gr';
+import { v4 as uuidv4 } from 'uuid';
 
 import { client, urlFor } from '../../lib/client';
 import { pinDetailQuery, similarPinsQuery } from '../../lib/data';
 import MasonryLayout from '../../components/MasonryLayout';
 import PinImage from '../../components/PinImage';
+import ChooseBoard from "../../components/ChooseBoard";
+import CreateBoard from "../../components/CreateBoard";
 
 const PinDetail = ({ pinDetail, similarPins, userId }) => {
     const [selectedCategory, setSelectedCategory] = useState("Profile");
     const [showComments, setShowComments] = useState(false);
     const [commentText, setCommentText] = useState("");
-    const [alreadySaved, setAlreadySaved] = useState(false);
+    const [savingPost, setSavingPost] = useState(false);
+    const [postSaved, setPostSaved] = useState(false);
+    const [showChooseBoard, setShowChooseBoard] = useState(false);
+    const [showCreateBoard, setShowCreateBoard] = useState(false);
 
-    const { image, title, about, destination, postedBy, comments, save, _id } = pinDetail[0];
+    const { image, title, about, destination, postedBy, comments, _id } = pinDetail[0];
     const pinUrl = image ? (urlFor(image).url()) : null;
 
     useEffect(() => {
-      console.log('similarPins: ', similarPins);
       if (!userId) {
         router.replace("/login");
       }
     }, [userId]);
 
-    const savePin = (id) => {
-      if (!alreadySaved) {
-        setSavingPost(true);
+    // const savePin = (id) => {
+    //   setSavingPost(true);
   
-        client
-          .patch(id)
-          .setIfMissing({ save: [] })
-          .insert('after', 'save[-1]', [{
-            _key: uuidv4(),
-            userId,
-            postedBy: {
-              _type: 'postedBy',
-              _ref: `${userId}`,
-            },
-          }])
-          .commit()
-          .then(() => {
-            setAlreadySaved(true);
-            setSavingPost(false);
-            // Deploy success banner
-          })
-          .catch((err) => console.log('Error saving pin: ', err));
-      }
-    };
+    //   client
+    //     .patch(id)
+    //     .setIfMissing({ save: [] })
+    //     .insert('after', 'save[-1]', [{
+    //       _key: uuidv4(),
+    //       userId,
+    //       postedBy: {
+    //         _type: 'postedBy',
+    //         _ref: `${userId}`,
+    //       },
+    //     }])
+    //     .commit()
+    //     .then(() => {
+    //       setPostSaved(true);
+    //       setSavingPost(false);
+    //       // Deploy success banner
+    //     })
+    //     .catch((err) => {
+    //       console.log('Error saving pin: ', err);
+    //       setSavingPost(false);
+    //       setShowChooseBoard(false);
+    //     });
+    // };
 
-    // console.log(pinDetail);
-    // console.log(!!(save?.filter(item => item.postedBy?._id === userId).length));
-    // console.log(pinDetail, { similarPins });
+    const handleCreateBoard = () => {
+      setShowChooseBoard(false);
+      setShowCreateBoard(true);
+    };
+    
     return (
+      <>
         <div className="min-h-screen overflow-scroll flex flex-col items-center pt-20">
             <div 
                 className="shadow-2xl w-[90vw] min-h-[75vh] rounded-[5%] flex flex-row mt-8 mb-24"
@@ -73,20 +82,14 @@ const PinDetail = ({ pinDetail, similarPins, userId }) => {
                         </a> 
 
                         <div className="flex flex-row">
-                            <span 
-                                className="flex justify-center items-center text-xl hover:font-medium p-3.5 px-5 mx-1 rounded-3xl cursor-pointer"
+                            <button 
+                              onClick={() => setShowChooseBoard(true)} 
+                              type="button" 
+                              className="bg-[#e60023] hover:bg-[#ff5247] text-[white] text-xl p-3.5 px-5 mx-1 rounded-3xl"
+                              disabled={savingPost || postSaved}
                             >
-                                {selectedCategory} <FiChevronDown className="font-black ml-2" />
-                            </span>
-
-                            {alreadySaved 
-                            ? <button type="button" disabled className="bg-[#e60023] text-[white] text-xl p-3.5 px-5 mx-1 rounded-3xl">
-                                Saved
-                            </button> 
-                            : <button onClick={() => savePin(_id)} type="button" className="bg-[#e60023] hover:bg-[#ff5247] text-[white] text-xl p-3.5 px-5 mx-1 rounded-3xl">
-                                Save
+                              {savingPost ? 'Saving...' : postSaved ? 'Saved!' : 'Save'}
                             </button>
-                            }
                         </div>
                     </div>
                     <div className="flex flex-col">
@@ -172,6 +175,11 @@ const PinDetail = ({ pinDetail, similarPins, userId }) => {
             }
             
         </div>
+
+        {showChooseBoard ? <ChooseBoard setShowChooseBoard={setShowChooseBoard} handleCreateBoard={handleCreateBoard} userId={userId} pinId={_id}  /> : null}
+
+        {showCreateBoard ? <CreateBoard setShowCreateBoard={setShowCreateBoard} userId={userId} pinId={_id} setSavingPost={setSavingPost} setPostSaved={setPostSaved} /> : null}
+      </>
     );
 }
 

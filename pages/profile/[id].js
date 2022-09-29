@@ -107,7 +107,7 @@ const Profile = ({ userUrlId, profileDetails, boards, createdPins }) => {
 
       {activeButton === "Created" ? (
         <div 
-          className="border-2 border-black w-full h-full mt-8 "
+          className="w-full h-full mt-8 "
         >
           {createdPins?.length ? (
             <MasonryLayout pins={createdPins} userId={userUrlId} />
@@ -115,35 +115,41 @@ const Profile = ({ userUrlId, profileDetails, boards, createdPins }) => {
             <p>No Pins Created</p>
           )}
         </div>
-      ): (
-        <>
-        <div className="h-full mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 items-center justify-items-center px-3">
-          {organisedBoards?.length ? (
-            organisedBoards.map((board) => (
-              <Board key={board._id} board={board} />
-            ))
-          ): (
-            <p>No Pins Saved</p>
-          )}
+      ): ( !organisedBoards?.length && !unorganisedBoard[0]?.savedPins?.length) ? (
+        <div 
+          className="w-full flex justify-center items-center mt-[40%]"
+        >
+          <span className="text-3xl font-bold">No Pins Saved</span>
         </div>
-
-        {(unorganisedBoard?.length && unorganisedBoard[0]?.savedPins?.length) ? (
-          <div className="w-full border-t-2 border-gray-300 mt-12 pt-12 flex flex-col">
-            <div className="w-full flex justify-between items-center mb-8 sm:px-3">
-              <span className="text-2xl font-semibold">Unorganised ideas</span>
-              <button 
-                type="button" 
-                onClick={() => setShowOrganiseBoard(true)}
-                className="text-lg font-medium p-3 rounded-3xl bg-gray-100 hover:bg-gray-200"
-              >
-                Organise
-              </button>
-            </div>
-            <MasonryLayout pins={unorganisedBoard[0]?.savedPins} userId={userUrlId} />
+      ) : (
+        <>
+          <div className="h-full mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 items-center justify-items-center px-3">
+            {organisedBoards?.length ? (
+              organisedBoards.map((board) => (
+                <Board key={board._id} board={board} />
+              ))
+            ): (
+              null
+            )}
           </div>
-        ): (
-          null
-        )}
+
+          {(unorganisedBoard?.length && unorganisedBoard[0]?.savedPins?.length) ? (
+            <div className="w-full border-t-2 border-gray-300 mt-12 pt-12 flex flex-col">
+              <div className="w-full flex justify-between items-center mb-8 sm:px-3">
+                <span className="text-2xl font-semibold">Unorganised ideas</span>
+                <button 
+                  type="button" 
+                  onClick={() => setShowOrganiseBoard(true)}
+                  className="text-lg font-medium p-3 rounded-3xl bg-gray-100 hover:bg-gray-200"
+                >
+                  Organise
+                </button>
+              </div>
+              <MasonryLayout pins={unorganisedBoard[0]?.savedPins} userId={userUrlId} />
+            </div>
+          ): (
+            null
+          )}
         </>
       )}
 

@@ -4,18 +4,9 @@ import { BsPlusLg } from 'react-icons/bs';
 
 import { client } from '../lib/client';
 import { boardsQuery } from '../lib/data';
+import { savePin } from '../lib/utils';
 
-// const boards = [
-//   { name: 'Profile', image: ''},
-//   { name: 'Casual', image: ''},
-//   { name: 'Business', image: ''},
-//   { name: 'Quotes', image: ''},
-//   { name: 'Puppies', image: ''},
-//   { name: 'Cats', image: ''},
-//   { name: 'Photography', image: ''},
-// ]
-
-const ChooseBoard = ({ setShowChooseBoard, savePin, handleCreateBoard, userId, pinId, widthVal, heightVal, setSelectedBoardId }) => {
+const ChooseBoard = ({ setShowChooseBoard, handleCreateBoard, userId, pinId, widthVal, heightVal, setSelectedBoardId }) => {
   const [searchBoard, setSearchBoard] = useState("");
   const [boards, setBoards] = useState([]);
 
@@ -33,7 +24,6 @@ const ChooseBoard = ({ setShowChooseBoard, savePin, handleCreateBoard, userId, p
   }
 
   useEffect(() => {
-    console.log("widthVal: ", widthVal, "heightVal: ", heightVal);
     fetchBoards();
   }, [userId]);
 
