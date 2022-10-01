@@ -71,9 +71,11 @@ const SignUp = () => {
   }
 
   return (
-    <div>
-      {wrongImageType ? <p>Wrong image type</p> : null}
-      <div className=" flex justify-center items-center flex-col border-2 border-dotted border-gray-300 p-3 w-full h-420">
+    <div
+      className="shadow-2xl w-[80vw] md:w-[55vw] lg:w-[550px] 2xl:w-[35vw] p-5 rounded-3xl flex flex-col items-center"
+    >
+      {wrongImageType ? <p>Must be: JPG, JPEG, SVG, PNG</p> : null}
+      <div className="flex justify-center items-center flex-col border-2 border-dotted border-gray-300 p-3 w-3/4 xs:h-[200px] xs:w-[200px] xs:h-[200px] lg:w-[300px] lg:h-[300px] ">
         {loading && (
           'Loading...'
         )}
@@ -87,10 +89,6 @@ const SignUp = () => {
                 </p>
                 <p className="text-lg">Click to upload</p>
               </div>
-
-              <p className="mt-32 text-gray-400">
-                Recommendation: Use high-quality JPG, JPEG, SVG, PNG, GIF or TIFF less than 20MB
-              </p>
             </div>
             <input
               type="file"
@@ -116,47 +114,62 @@ const SignUp = () => {
           </div>
         )}
       </div>
-      <input 
-        type="text"
-        name="userName"
-        value={signUpDetails.userName}
-        placeholder="User Name"
-        onChange={handleOnChange}
-        required
-      />
-      <label>Optional</label>
-      <input 
-        type="text"
-        name="websiteLink"
-        value={signUpDetails.websiteLink}
-        placeholder="Add a link to your personal website"
-        onChange={handleOnChange}
-      />
-      <input 
-        type="email"
-        name="email"
-        value={signUpDetails.email}
-        placeholder="Email"
-        onChange={handleOnChange}
-        required
-      />
-      <input 
-        type="password"
-        name="password"
-        value={signUpDetails.password}
-        placeholder="Password"
-        onChange={handleOnChange}
-        required
-      />
-      <input 
-        type="password"
-        name="confirmPassword"
-        value={signUpDetails.confirmPassword}
-        placeholder="Confirm Password"
-        onChange={handleOnChange}
-        required
-      />
-      <button type='button' onClick={handleSubmit}>Sign up</button>
+
+      <form 
+        onSubmit={handleSubmit}
+        className="flex flex-col items-center justify-center gap-3 3xl:gap-5 w-full h-full mt-10 xs:mt-0"
+      >
+        <input
+          className='w-[90%] sm:w-3/4 focus:outline-none border-b-[1px] border-gray-500 pt-5 3xl:pt-8 3xl:pb-2 text-lg 3xl:text-3xl' 
+          type="text"
+          name="userName"
+          value={signUpDetails.userName}
+          placeholder="User Name"
+          onChange={handleOnChange}
+          required
+        />
+        <input
+          className='w-[90%] sm:w-3/4 focus:outline-none border-b-[1px] border-gray-500 pt-5 3xl:pt-8 3xl:pb-2 text-lg 3xl:text-3xl' 
+          type="text"
+          name="websiteLink"
+          value={signUpDetails.websiteLink}
+          placeholder="Personal Website (optional)"
+          onChange={handleOnChange}
+        />
+        <input
+          className='w-[90%] sm:w-3/4 focus:outline-none border-b-[1px] border-gray-500 pt-5 3xl:pt-8 3xl:pb-2 text-lg 3xl:text-3xl' 
+          type="email"
+          name="email"
+          value={signUpDetails.email}
+          placeholder="Email"
+          onChange={handleOnChange}
+          required
+        />
+        <input
+          className='w-[90%] sm:w-3/4 focus:outline-none border-b-[1px] border-gray-500 pt-5 3xl:pt-8 3xl:pb-2 text-lg 3xl:text-3xl' 
+          type="password"
+          name="password"
+          value={signUpDetails.password}
+          placeholder="Password"
+          onChange={handleOnChange}
+          required
+        />
+        <input
+          className='w-[90%] sm:w-3/4 focus:outline-none border-b-[1px] border-gray-500 pt-5 3xl:pt-8 3xl:pb-2 text-lg 3xl:text-3xl' 
+          type="password"
+          name="confirmPassword"
+          value={signUpDetails.confirmPassword}
+          placeholder="Confirm Password"
+          onChange={handleOnChange}
+          required
+        />
+        <button 
+          type='submit'
+          className='mt-8 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-3xl 3xl:px-5 3xl:py-3 3xl:text-3xl'
+        >
+          Sign up
+        </button>
+      </form>
     </div>
   );
 }

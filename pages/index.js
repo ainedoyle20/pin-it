@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import { useRouter } from 'next/router';
+import { Circles } from 'react-loader-spinner';
 
 import PinsContainer from '../components/PinsContainer';
 import { client } from '../lib/client';
@@ -34,10 +35,22 @@ const Home = ({ pins, userId, userDetails }) => {
   if (!userDetails || loading) {
     return (
       <div className='w-screen h-screen flex justify-center items-center'>
-        <span className='text-2xl'>
+        {/* <span className='text-2xl'>
           Loading...
-        </span>
+        </span> */}
+
+        <Circles
+          height="80"
+          width="80"
+          color="#65B2FF"
+          ariaLabel="circles-loading"
+          // wrapperStyle={{}}
+          // wrapperClass=""
+          visible={true}
+        />
       </div>
+
+      
     )
   }
 

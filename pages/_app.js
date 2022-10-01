@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import Router from 'next/router';
-import Layout from '../components/Layout';
+import { Circles } from 'react-loader-spinner';
+// import Layout from '../components/Layout';
 import Navbar from '../components/Navbar';
 import '../styles/globals.css';
 
@@ -59,7 +60,17 @@ function MyApp({ Component, pageProps }) {
   return (
     <>
     {loading ? (
-      <h2 className='text-3xl font-bold'>Loading...</h2>
+      <div className='w-screen h-screen flex justify-center items-center'>
+        <Circles
+          height="80"
+          width="80"
+          color="#65B2FF"
+          ariaLabel="circles-loading"
+          // wrapperStyle={{}}
+          // wrapperClass=""
+          visible={true}
+        />
+      </div>
     ) : (
       <>
       {/* <Layout> */}

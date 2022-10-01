@@ -112,14 +112,16 @@ const Profile = ({ userUrlId, profileDetails, boards, createdPins }) => {
           {createdPins?.length ? (
             <MasonryLayout pins={createdPins} userId={userUrlId} />
           ) : (
-            <p>No Pins Created</p>
+            <p
+              className="w-full flex justify-center mt-28 text-2xl font-medium"
+            >No Pins Created</p>
           )}
         </div>
       ): ( !organisedBoards?.length && !unorganisedBoard[0]?.savedPins?.length) ? (
         <div 
-          className="w-full flex justify-center items-center mt-[40%]"
+          className="w-full flex justify-center mt-28"
         >
-          <span className="text-3xl font-bold">No Pins Saved</span>
+          <span className="text-2xl font-medium">No Pins Saved</span>
         </div>
       ) : (
         <>

@@ -91,14 +91,6 @@ const Pin = ({ pin, userId, selectedPins, togglePin, editBoard, handleRemovePin,
             style={{ height: '100%' }}
           >
             <div className="flex items-center justify-between">
-              {/* <span 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowChooseBoard(true);
-                }}
-                className="cursor-pointer text-white"
-              >{selectedBoard}</span> */}
-
               {alreadySaved ? (
                 <button type="button" disabled className="bg-red-500 opacity-70 text-white font-bold px-5 py-1 text-base rounded-3xl hover:shadow-md outline-none">
                   Saved
@@ -160,7 +152,7 @@ const Pin = ({ pin, userId, selectedPins, togglePin, editBoard, handleRemovePin,
             
             </div>
           </div>
-        )}
+        )} 
         {editBoard && (
           <button
             type='button'

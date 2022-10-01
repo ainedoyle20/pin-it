@@ -19,7 +19,7 @@ const PinsContainer = ({ pins, userId }) => {
   }
 
   return (
-    <div className='w-full h-screen overflow-scroll px-10 md:px-16 pt-20'>
+    <div className='w-full h-screen overflow-scroll px-10 md:px-16 pt-24'>
       <div className='h-full'>
         {pins && pins.length ? (
           <MasonryLayout pins={pins} userId={userId} />

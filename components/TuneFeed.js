@@ -33,7 +33,7 @@ const TuneFeed = ({ userId, setShowTuneFeed, userDetails }) => {
 
   return (
     <div
-      className='absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] bg-white rounded-lg shadow-2xl border-[1px] border-gray-100 z-[200] flex flex-col items-center p-3 w-[90vw] h-[80vh] overflow-scroll'
+      className='absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] bg-white rounded-lg shadow-2xl border-[1px] border-gray-100 z-[200] flex flex-col items-center p-3 w-[90vw] sm:w-[80vw] xl:w-[75vw] h-[80vh] overflow-scroll'
     >
       <div className='w-full flex justify-end mt-3 mr-3'>
         <button type='button' className='p-2 rounded-3xl hover:shadow-lg' onClick={() => setShowTuneFeed(false)}>
