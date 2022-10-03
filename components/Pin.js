@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { StateContext } from '../context/StateContext';
 // import { v4 as uuidv4 } from 'uuid';
 import { MdDownloadForOffline } from 'react-icons/md';
 import { AiTwotoneDelete } from 'react-icons/ai';
 import { BsFillArrowUpRightCircleFill } from 'react-icons/bs';
 
 import { client, urlFor } from '../lib/client';
-import { savePin } from '../lib/utils';
 import ChooseBoard from './ChooseBoard';
 import CreateBoard from './CreateBoard';
 
-const Pin = ({ pin, userId, selectedPins, togglePin, editBoard, handleRemovePin, disableRemoveBtn, unorganised, handleRemoveUnorganisedPin }) => {
-  const [savingPost, setSavingPost] = useState(false);
-  const [alreadySaved, setAlreadySaved] = useState(false);
+const Pin = ({ pin, selectedPins, togglePin, editBoard, handleRemovePin, disableRemoveBtn, unorganised, handleRemoveUnorganisedPin }) => {
+  const { setStatusProps, user } = useContext(StateContext);
+
   const [showChooseBoard, setShowChooseBoard] = useState(false);
   const [showCreateBoard, setShowCreateBoard] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
@@ -22,17 +22,17 @@ const Pin = ({ pin, userId, selectedPins, togglePin, editBoard, handleRemovePin,
 
   const { postedBy, image, _id, destination } = pin;
 
-  useEffect(() => {
-    if (!userId) {
-      router.replace("/login");
-    }
-  }, [userId]);
-
   const deletePin = (id) => {
     client
       .delete(id)
       .then(() => {
-        window.location.reload();
+        setStatusProps({ success: true, message: 'Pin deleted'});
+        setTimeout(() => {
+          window.location.reload(true);
+        }, 5000);
+      })
+      .catch((err) => {
+        setStatusProps({ success: false });
       });
   };
 
@@ -74,7 +74,7 @@ const Pin = ({ pin, userId, selectedPins, togglePin, editBoard, handleRemovePin,
               type="button"
               className="bg-red-500 opacity-70 hover:opacity-100 text-white font-bold px-5 py-1 text-base rounded-3xl hover:shadow-md outline-none"
             >
-              {savingPost ? 'Saving' : 'Save'}
+              Save
             </button>
           </div>
 
@@ -105,7 +105,7 @@ const Pin = ({ pin, userId, selectedPins, togglePin, editBoard, handleRemovePin,
               </a>
 
               {
-                postedBy?._id === userId && (
+                postedBy?._id === user?.uid ? (
                 <button
                   type="button"
                   onClick={(e) => {
@@ -116,7 +116,7 @@ const Pin = ({ pin, userId, selectedPins, togglePin, editBoard, handleRemovePin,
                 >
                   <AiTwotoneDelete />
                 </button>
-                )
+                ) : <button type='button' className='hidden'></button>
               }
             </div>
           
@@ -163,9 +163,7 @@ const Pin = ({ pin, userId, selectedPins, togglePin, editBoard, handleRemovePin,
     {showChooseBoard ? (
       <ChooseBoard 
         setShowChooseBoard={setShowChooseBoard} 
-        savePin={savePin} 
         handleCreateBoard={handleCreateBoard} 
-        userId={userId}
         pinId={_id}
       />
     ) : (
@@ -175,7 +173,6 @@ const Pin = ({ pin, userId, selectedPins, togglePin, editBoard, handleRemovePin,
     {showCreateBoard ? (
       <CreateBoard 
         setShowCreateBoard={setShowCreateBoard} 
-        userId={userId} 
         pinId={selectedId} 
       />
     ): (

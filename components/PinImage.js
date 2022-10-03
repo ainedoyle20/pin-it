@@ -1,12 +1,14 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import Link from 'next/link';
 import { FiArrowUpRight } from "react-icons/fi";
 import { AiTwotoneDelete } from 'react-icons/ai';
 import { Circles } from 'react-loader-spinner';
 
 import { client, urlFor } from '../lib/client';
+import { StateContext } from '../context/StateContext';
 
-const PinImage = ({ pinUrl, destination, postedBy, image, userId }) => {
+const PinImage = ({ pinUrl, destination, postedBy, image }) => {
+  const { user } = useContext(StateContext);
 
   const deletePin = (id) => {
     client
@@ -61,7 +63,7 @@ const PinImage = ({ pinUrl, destination, postedBy, image, userId }) => {
 
           <div className="flex">
             {
-              postedBy?._id === userId && (
+              postedBy?._id === user?.uid ? (
               <button
                 type="button"
                 onClick={(e) => {
@@ -72,7 +74,7 @@ const PinImage = ({ pinUrl, destination, postedBy, image, userId }) => {
               >
                 <AiTwotoneDelete />
               </button>
-              )
+              ): null
             }
           </div>
         

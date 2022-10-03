@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { MdDelete } from 'react-icons/md';
 
@@ -16,8 +15,6 @@ const EditProfile = ({userProfile}) => {
   const [showUploadImage, setShowUploadImage] = useState(false);
   const [wrongImageType, setWrongImageType] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  const router = useRouter();
 
   const uploadImage = (e) => {
     const selectedFile = e.target.files[0];
@@ -101,7 +98,6 @@ const EditProfile = ({userProfile}) => {
             ) : (
               <div className="flex justify-center items-center flex-col border-2 border-dotted border-gray-300 p-3 w-[200px] h-[150px]">
                 {loading && (
-                  // <Spinner />
                   'Loading...'
                 )}
                 {
@@ -119,10 +115,6 @@ const EditProfile = ({userProfile}) => {
                         </p>
                         <p className="text-xs">Upload</p>
                       </div>
-
-                      {/* <p className="mt-32 text-gray-400">
-                        Recommendation: Use high-quality JPG, JPEG, SVG, PNG, GIF or TIFF less than 20MB
-                      </p> */}
                     </div>
                     <input
                       type="file"
@@ -284,6 +276,15 @@ export const getServerSideProps = async (context) => {
     const userQ = userQuery(userId);
     userProfile = await client.fetch(userQ);
     userProfile = userProfile.length ? userProfile[0] : null;
+  }
+
+  if (!userProfile) {
+    return {
+      redirect: {
+        permanent: false,
+        destination: '/login'
+      }
+    }
   }
 
   return {

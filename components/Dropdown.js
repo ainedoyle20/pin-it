@@ -1,36 +1,19 @@
-import React, {useState, useEffect } from 'react';
-import Link from 'next/link';
+import React, {useContext } from 'react';
+import { StateContext } from '../context/StateContext';
 import { useRouter } from 'next/router';
-import { handleSignOut } from '../lib/utils';
-import { userQuery } from '../lib/data';
-import { client, urlFor } from '../lib/client';
+import Link from 'next/link';
 
-const Dropdown = ({ setShowTuneFeed, setShowDropdown, userId }) => {
-  const [userDetails, setUserDetails] = useState(null);
+import { handleSignOut } from '../lib/utils';
+import { urlFor } from '../lib/client';
+
+const Dropdown = ({ setShowTuneFeed, setShowDropdown }) => {
+  const { user, userDetails } = useContext(StateContext);
 
   const router = useRouter();
 
-  const getUserDetails = async (id) => {
-    const query = userQuery(id);
-    const userDetails = await client.fetch(query);
-    
-    setUserDetails(userDetails[0]);
-  }
-
-  useEffect(() => {
-    if (localStorage.getItem('user') !== 'undefined' && localStorage.getItem('user') !== null){
-      const userId = JSON.parse(localStorage.getItem('user')).userId;
-      getUserDetails(userId);
-    } else {
-      router.replace("/login");
-    }
-  }, []);
-
   const handleLogout = async () => {
-    const success = await handleSignOut();
-    if (success) {
-      router.replace("/login");
-    }
+    await handleSignOut();
+    router.replace("/login");
   }
 
   return (
@@ -54,7 +37,7 @@ const Dropdown = ({ setShowTuneFeed, setShowDropdown, userId }) => {
               </span>
             </div>
 
-            <Link href={`/profile/edit/${userId}`}>
+            <Link href={`/profile/edit/${user?.uid}`}>
               <span className='text-xl p-2 px-5 rounded-lg hover:shadow-lg my-2 cursor-pointer'
               >
                 Edit profile

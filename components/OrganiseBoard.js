@@ -1,4 +1,5 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useContext} from 'react';
+import { StateContext } from '../context/StateContext';
 import { GiCancel } from 'react-icons/gi';
 
 import ChooseBoard from './ChooseBoard';
@@ -7,6 +8,8 @@ import MasonryLayout from './MasonryLayout';
 import { savePin, removeSavedPin } from '../lib/utils';
 
 const OrganiseBoard = ({ userId, pins, setShowOrganiseBoard, profileBoardId }) => {
+  const { setStatusProps } = useContext(StateContext);
+
   const [selectedPins, setSelectedPins] = useState([]);
   const [showChooseBoard, setShowChooseBoard] = useState(false);
   const [selectedBoardId, setSelectedBoardId] = useState("");
@@ -22,6 +25,7 @@ const OrganiseBoard = ({ userId, pins, setShowOrganiseBoard, profileBoardId }) =
       removeSavedPin(profileBoardId, pinId);
     });
 
+    setStatusProps({message: 'Saved pin(s) to board', success: true });
     setShowOrganiseBoard(false);
 
   }, [selectedBoardId])

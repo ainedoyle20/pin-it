@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
+import { StateContext } from '../context/StateContext';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -12,9 +13,10 @@ import TuneFeed from './TuneFeed';
 import { urlFor } from '../lib/client';
 
 const activeStyles = 'bg-black text-white h-full py-2 px-3 rounded-3xl cursor-pointer';
-// const activeStylesProfile = 'bg-black text-white border-[1px] border-black h-full w-12 rounded-3xl';
 
-const Navbar = ({ userId, userDetails }) => {
+const Navbar = () => {
+  const { userDetails, user } = useContext(StateContext);
+
   const [showDropdown, setShowDropdown] = useState(false);
   const [showTuneFeed, setShowTuneFeed] = useState(false);
   const [showOption, setShowOption] = useState(false);
@@ -80,7 +82,7 @@ const Navbar = ({ userId, userDetails }) => {
             />  
           ): null}
 
-          <Link href={`/profile/${userId}`}>
+          <Link href={`/profile/${user?.uid}`}>
             {userDetails?.image ? (
               <img 
                 alt="profile pic"
@@ -107,12 +109,12 @@ const Navbar = ({ userId, userDetails }) => {
           </button>
         </div>
         
-        {showDropdown ? <Dropdown setShowTuneFeed={setShowTuneFeed} setShowDropdown={setShowDropdown} userId={userId} /> : null}
+        {showDropdown ? <Dropdown setShowTuneFeed={setShowTuneFeed} setShowDropdown={setShowDropdown} /> : null}
       </div>
     </div>
 
 
-    {showTuneFeed ? <TuneFeed userId={userId} userDetails={userDetails} setShowTuneFeed={setShowTuneFeed} /> : null}
+    {showTuneFeed ? <TuneFeed userDetails={userDetails} setShowTuneFeed={setShowTuneFeed} /> : null}
     </>
   );
 }

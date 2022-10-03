@@ -1,7 +1,7 @@
 import React from 'react';
 import MasonryLayout from './MasonryLayout';
 
-const PinsContainer = ({ pins, userId }) => {
+const PinsContainer = ({ pins }) => {
 
   if (!pins) {
     return (
@@ -17,7 +17,7 @@ const PinsContainer = ({ pins, userId }) => {
     <div className='w-full h-screen overflow-scroll px-10 md:px-16 pt-24'>
       <div className='h-full'>
         {pins && pins.length ? (
-          <MasonryLayout pins={pins} userId={userId} />
+          <MasonryLayout pins={pins} />
         ): null}
       </div>
     </div>

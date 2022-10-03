@@ -1,4 +1,5 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useContext} from "react";
+import { StateContext } from "../../context/StateContext";
 import { useRouter } from "next/router";
 
 import { urlFor, client } from '../../lib/client';
@@ -9,47 +10,14 @@ import MasonryLayout from '../../components/MasonryLayout';
 import OrganiseBoard from "../../components/OrganiseBoard";
 
 const Profile = ({ userUrlId, profileDetails, boards, createdPins }) => {
-  // console.log("userUrlId: ", userUrlId, "profileDetails: ", profileDetails, "boards: ", boards, "createdPins: ", createdPins);
+  const { setStatusProps, user } = useContext(StateContext);
+
   const [activeButton, setActiveButton] = useState('Created');
-  const [loggingOut, setLoggingOut] = useState(false);
   const [organisedBoards, setOrganisedBoards] = useState([]);
   const [unorganisedBoard, setUnorganisedBoard] = useState([]);
   const [showOrganiseBoard, setShowOrganiseBoard] = useState(false);
 
   const router = useRouter();
-
-  // const fetchBoards = async () => {
-  //   if (!userId) return;
-
-  //   try {
-  //     const query = boardsQuery(userId);
-  //     const boards = await client.fetch(query);
-      
-  //     const profileBoard = boards?.filter(board => board.name === 'Profile');
-  //     const createdBoards = boards.filter(board => board.name !== 'Profile');
-
-  //     // console.log("profileBoard: ", profileBoard, "createdBoards: ", createdBoards);
-  //     setBoards(createdBoards);
-  //     setUnorganisedBoard(profileBoard);
-  //   } catch (error) {
-  //     console.log("Error fetching boards: ", error);
-  //   }
-  // }
-
-  // const fetchCreatedPins = async () => {
-  //   const query = createdPinsQuery(userId);
-  //   try {
-  //     const createdPins = await client.fetch(query);
-  //     setCreatedPins(createdPins);
-  //     // console.log(createdPins);
-  //   } catch (error) {
-  //     console.log('Erro fetching saved pins: ', error);
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   if (!userId) router.replace("/login");
-  // }, [userId]);
 
   useEffect(() => {
     if(!boards) return;
@@ -57,28 +25,26 @@ const Profile = ({ userUrlId, profileDetails, boards, createdPins }) => {
     const profileBoard = boards?.filter(board => board.name === 'Profile');
     const createdBoards = boards.filter(board => board.name !== 'Profile');
 
-    // console.log("profileBoard: ", profileBoard, "createdBoards: ", createdBoards);
     setOrganisedBoards(createdBoards);
     setUnorganisedBoard(profileBoard);
   }, [boards]);
 
-  // useEffect(() => {
-  //   fetchCreatedPins();
-  // }, [userId]);
-
   const handleLogout = async () => {
-    const success = await handleSignOut();
-    if (success) {
-      router.replace("/login");
-    }
+    await handleSignOut();
+    router.replace("/login");
   }
 
   const handleRemoveUnorganisedPin = (pinId) => {
     client.patch(unorganisedBoard[0]._id)
       .unset([`savedPins[_ref=="${pinId}"]`])
       .commit()
-      .then(() => console.log("success removing unorganised pin"))
-      .catch((error) => console.log("error removing unorganised pin", error))
+      .then(() => {
+        setStatusProps({ success: true, message: "Pin removed" });
+      })
+      .catch((error) => {
+        console.log("error removing unorganised pin", error);
+        setStatusProps({ success: false });
+      })
   }
 
   return (
@@ -178,6 +144,15 @@ export const getServerSideProps = async (context) => {
   let profileDetails = null;
   let boards = null;
   let createdPins = null;
+
+  if (!context.req.cookies.currentUser) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      }
+    }
+  }
 
   if (userUrlId) {
     const userQ = userQuery(userUrlId);

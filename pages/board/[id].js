@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { StateContext } from '../../context/StateContext';
 import { useRouter } from 'next/router';
 import { RiDeleteBin7Fill } from 'react-icons/ri';
 import { AiFillEdit } from 'react-icons/ai'
+import {Circles} from 'react-loader-spinner';
 
 import { specificBoardQuery } from '../../lib/data';
 import { client, urlFor } from '../../lib/client';
@@ -9,7 +11,9 @@ import { removeSavedPin } from '../../lib/utils';
 
 import MasonryLayout from '../../components/MasonryLayout';
 
-const BoardDetail = ({ userId, boardId, boardDetails }) => {
+const BoardDetail = ({ boardId, boardDetails }) => {
+  const { setStatusProps, user } = useContext(StateContext);
+
   const [showDeleteWarning, setShowDeleteWarning] = useState(false);
   const [deletingBoard, setDeletingBoard] = useState(false);
   const [editBoard, setEditBoard] = useState(false);
@@ -17,48 +21,63 @@ const BoardDetail = ({ userId, boardId, boardDetails }) => {
 
   const router = useRouter();
 
-  useEffect(() => {
-    if (!userId) router.replace("/login");
-  }, [userId])
-
-  useEffect(() => {
-    if (!boardDetails || !Object.values(boardDetails).length) {
-      if (!userId) {
-        router.replace("/login");
-      } else {
-        router.replace(`/profile/${userId}`);
-      }
-    } 
-  }, [boardDetails]);
-
   const deleteBoard = (id) => {
     client
       .delete(id)
       .then(() => {
-        console.log("Successfully deleted board");
         setDeletingBoard(true);
         setTimeout(() => {
-          router.replace(`/profile/${userId}`);
+          router.replace(`/profile/${user?.uid}`);
         }, 2000);
-      });
+      })
+      .catch((err) => console.log('error deleting board: ', err));
   };
 
-  const handleRemovePin = (id) => {
+  const handleRemovePin = async (id) => {
     setDisableRemoveBtn(true);
-    removeSavedPin(boardId, id);
-    setTimeout(() => {
-      window.location.reload();
-    }, 2000);
+    setDeletingBoard(true);
+
+    const success = await removeSavedPin(boardId, id);
+
+    if (success) {
+      setStatusProps({success: true, message: `Removed pin from ${boardDetails?.name ? boardDetails?.name : 'board'}`})
+      setTimeout(() => {
+        window.location.reload();
+      }, 5000); 
+    } else {
+      setStatusProps({succes: false });
+      setTimeout(() => {
+        window.location.reload();
+      }, 5000); 
+    }
+  }
+
+  if (!user) {
+    return (
+      <div className='w-screen h-screen flex justify-center items-center'>
+        <Circles
+          height="80"
+          width="80"
+          color="#65B2FF"
+          ariaLabel="circles-loading"
+          visible={true}
+        />
+      </div>
+    );
   }
 
   if (deletingBoard || !boardDetails || !Object.values(boardDetails).length) {
     return (
       <div className='w-screen h-screen flex justify-center items-center'>
-        <span 
-          className='text-2xl'
-        >Loading...</span>
+        <Circles
+          height="80"
+          width="80"
+          color="#65B2FF"
+          ariaLabel="circles-loading"
+          visible={true}
+        />
       </div>
-    )
+    );
   }
 
   return (
@@ -124,7 +143,7 @@ const BoardDetail = ({ userId, boardId, boardDetails }) => {
           className='w-full h-full mt-10'
         >
           {boardDetails?.savedPins?.length ? (
-            <MasonryLayout pins={boardDetails?.savedPins} userId={userId} editBoard={editBoard} handleRemovePin={handleRemovePin} disableRemoveBtn={disableRemoveBtn} />
+            <MasonryLayout pins={boardDetails?.savedPins} editBoard={editBoard} handleRemovePin={handleRemovePin} disableRemoveBtn={disableRemoveBtn} />
           ): (
             <span 
               className='text-2xl font-medium w-full flex justify-center mt-20'
@@ -137,7 +156,7 @@ const BoardDetail = ({ userId, boardId, boardDetails }) => {
 
       {(showDeleteWarning && boardDetails) ? (
         <div className='absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] z-[200]'>
-          <div className='w-[70vw] sm:w-[50vw] min-h-[38vh] flex flex-col items-center bg-white rounded-2xl shadow-2xl'>
+          <div className='w-[90vw] sm:w-[50vw] 2xl:w-[900px] min-h-[38vh] flex flex-col items-center bg-white rounded-2xl shadow-2xl'>
             <span 
               className='text-3xl font-bold my-10'
             >Warning!</span>
@@ -182,14 +201,14 @@ export const getServerSideProps = async (context) => {
     }
   }
 
-  // if (!boardDetails || !boardDetails?.length) {
-  //   return {
-  //     redirect: {
-  //       permanent: false,
-  //       destination: '/'
-  //     }
-  //   }
-  // }
+  if (!boardDetails || !Object.values(boardDetails).length) {
+    return {
+      redirect: {
+        permanent: false,
+        destination: '/'
+      }
+    }
+  }
   
 
   return {

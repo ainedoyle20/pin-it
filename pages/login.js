@@ -1,16 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useRouter } from 'next/router';
 import SignUp from '../components/SignUp';
 import SignIn from '../components/SignIn';
+import { StateContext } from '../context/StateContext';
 
-const Login = ({ userId }) => {
+const Login = () => {
+  const { user } = useContext(StateContext);
+
   const [showSignUp, setShowSignUp] = useState(false);
 
   const router = useRouter();
 
-  useEffect(() => {
-    if (userId) router.replace("/");
-  }, [userId]);
+  // useEffect(() => {
+  //   if (user) router.replace("/");
+  // }, [user]);
 
   return (
     <div 

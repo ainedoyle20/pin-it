@@ -1,27 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { AiOutlineCloudUpload } from 'react-icons/ai';
+import React, { useState, useContext, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { StateContext } from '../context/StateContext';
+import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { MdDelete } from 'react-icons/md';
 
 import { categories } from '../lib/data';
 import { client, urlFor } from '../lib/client';
-// import Spinner from './Spinner';
+import {Circles} from 'react-loader-spinner';
 
-const CreatePin = ({ userId, userDetails }) => {
+const CreatePin = () => {
+  const { setStatusProps, user, userDetails } = useContext(StateContext);
+
   const [title, setTitle] = useState('');
   const [about, setAbout] = useState('');
   const [loading, setLoading] = useState(false);
-  const [destination, setDestination] = useState();
+  const [destination, setDestination] = useState("");
   const [fields, setFields] = useState();
   const [category, setCategory] = useState();
   const [imageAsset, setImageAsset] = useState();
   const [wrongImageType, setWrongImageType] = useState(false);
-
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!userId) router.replace("/login");
-  }, [userId])
 
   const uploadImage = (e) => {
     const selectedFile = e.target.files[0];
@@ -49,7 +46,7 @@ const CreatePin = ({ userId, userDetails }) => {
     }
   };
 
-  const savePin = () => {
+  const postPin = () => {
     if (title && about && destination && imageAsset?._id && category) {
       const doc = {
         _type: 'pin',
@@ -63,15 +60,22 @@ const CreatePin = ({ userId, userDetails }) => {
             _ref: imageAsset?._id,
           },
         },
-        userId,
+        userId: user?.uid,
         postedBy: {
           _type: 'postedBy',
-          _ref: userId,
+          _ref: user?.uid,
         },
         category,
       };
       client.create(doc).then(() => {
-        router.push('/');
+        setStatusProps({ message: 'Your pin was created', success: true })
+        setTitle("");
+        setAbout("");
+        setDestination("");
+        setImageAsset();
+      }).catch((error) => {
+        console.log('error creating pin: ', error);
+        setStatusProps({ success: false });
       });
     } else {
       setFields(true);
@@ -84,6 +88,20 @@ const CreatePin = ({ userId, userDetails }) => {
       );
     }
   };
+
+  if (!user) {
+    return (
+      <div className='w-screen h-screen flex justify-center items-center'>
+        <Circles
+          height="80"
+          width="80"
+          color="#65B2FF"
+          ariaLabel="circles-loading"
+          visible={true}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className='w-screen h-screen flex justify-center items-center pt-20 sm:pt-24 lg:pt-0'>
@@ -198,7 +216,7 @@ const CreatePin = ({ userId, userDetails }) => {
               <div className="flex justify-end items-end mt-5">
                 <button
                   type="button"
-                  onClick={savePin}
+                  onClick={postPin}
                   className="bg-red-500 text-white font-bold p-2 rounded-full w-28 outline-none"
                 >
                   Post Pin
@@ -211,5 +229,20 @@ const CreatePin = ({ userId, userDetails }) => {
     </div>
   );
 };
+
+export const getServerSideProps = async (context) => {
+  if (!context.req.cookies.currentUser) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      }
+    }
+  }
+
+  return {
+    props: {}
+  }
+}
 
 export default CreatePin;

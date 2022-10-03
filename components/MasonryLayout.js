@@ -14,7 +14,7 @@ const breakpointColumnsObj = {
   500: 1,
 };
 
-const MasonryLayout = ({ pins, userId, selectedPins, togglePin, editBoard, handleRemovePin, disableRemoveBtn, unorganised, handleRemoveUnorganisedPin }) => {
+const MasonryLayout = ({ pins, selectedPins, togglePin, editBoard, handleRemovePin, disableRemoveBtn, unorganised, handleRemoveUnorganisedPin }) => {
   const { filterCategory } = useContext(StateContext);
 
   const router = useRouter();
@@ -25,7 +25,6 @@ const MasonryLayout = ({ pins, userId, selectedPins, togglePin, editBoard, handl
         <Pin 
           key={pin._id} 
           pin={pin} 
-          userId={userId} 
           selectedPins={selectedPins} 
           togglePin={togglePin} 
           editBoard={editBoard}

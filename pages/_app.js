@@ -1,43 +1,20 @@
 import React, {useEffect, useState} from 'react';
 import Router from 'next/router';
 import { Circles } from 'react-loader-spinner';
-// import Layout from '../components/Layout';
 import Navbar from '../components/Navbar';
-import StateContextProvider from '../context/StateContext';
+import StatusBanner from '../components/StatusBanner';
+import {StateContextProvider} from '../context/StateContext';
+import { CookiesProvider } from 'react-cookie';
 import '../styles/globals.css';
 
-import { client } from '../lib/client';
-import { userQuery } from '../lib/data';
-
 function MyApp({ Component, pageProps }) {
-  const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  let userId = null;
-  if (typeof window !== 'undefined') {
-    // Perform localStorage action
-    if (localStorage.getItem('user') !== 'undefined' && localStorage.getItem('user') !== null) {
-      userId = JSON.parse(localStorage.getItem('user')).userId; 
-      // console.log(typeof userId);
-    } else {
-      localStorage.clear();
-    }
-  }
-
-  const getUserDetails = async (id) => {
-    const query = userQuery(id);
-    const userDetails = await client.fetch(query);
-    // console.log(userDetails[0]);
-    setUserDetails(userDetails[0]);
-  }
 
   useEffect(() => {
     const start = () => {
-      console.log("start");
       setLoading(true);
     };
     const end = () => {
-      console.log("finished");
       setLoading(false);
     };
     Router.events.on("routeChangeStart", start);
@@ -49,14 +26,6 @@ function MyApp({ Component, pageProps }) {
       Router.events.off("routeChangeError", end);
     };
   }, []);
-
-  useEffect(() => {
-    if (!userId) {
-      setUserDetails(null);
-    } else {
-      getUserDetails(userId);
-    }
-  }, [userId])
 
   return (
     <>
@@ -72,8 +41,11 @@ function MyApp({ Component, pageProps }) {
       </div>
     ) : (
       <StateContextProvider>
-        <Navbar {...pageProps} userId={userId} userDetails={userDetails}  />
-        <Component {...pageProps} userId={userId} userDetails={userDetails} />
+          <Navbar {...pageProps}  />
+          <CookiesProvider>
+            <Component {...pageProps} />
+          </CookiesProvider>
+          <StatusBanner />
       </StateContextProvider>
     )}
     </>

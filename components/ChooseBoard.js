@@ -7,16 +7,16 @@ import { client, urlFor } from '../lib/client';
 import { boardsQuery } from '../lib/data';
 import { savePin } from '../lib/utils';
 
-const ChooseBoard = ({ setShowChooseBoard, handleCreateBoard, userId, pinId, setSelectedBoardId }) => {
-  const { searchBoard, setSearchBoard } = useContext(StateContext);
+const ChooseBoard = ({ setShowChooseBoard, handleCreateBoard, pinId, setSelectedBoardId }) => {
+  const { searchBoard, setSearchBoard, setStatusProps, user } = useContext(StateContext);
 
   const [boards, setBoards] = useState([]);
 
   const fetchBoards = async () => {
-    if (!userId) return;
+    if (!user?.uid) return;
 
     try {
-      const query = boardsQuery(userId);
+      const query = boardsQuery(user?.uid);
       const boards = await client.fetch(query);
       setBoards(boards);
     } catch (error) {
@@ -26,13 +26,18 @@ const ChooseBoard = ({ setShowChooseBoard, handleCreateBoard, userId, pinId, set
 
   useEffect(() => {
     fetchBoards();
-  }, [userId]);
+  }, [user]);
 
-  const handleClickedBoard = (boardId, pinId) => {
+  const handleClickedBoard = async (boardId, pinId) => {
     if (!pinId) {
       setSelectedBoardId(boardId);
     } else {
-      savePin(boardId, pinId);
+      const success = savePin(boardId, pinId);
+      if (success) {
+        setStatusProps({ success: true, message: 'Your pin was successfully saved'});
+      } else {
+        setStatusProps({ success: false });
+      }
     }
     setShowChooseBoard(false);
   }
@@ -40,7 +45,7 @@ const ChooseBoard = ({ setShowChooseBoard, handleCreateBoard, userId, pinId, set
   return (
     <div 
       className={`
-        absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] 
+        absolute top-[55%] left-[50%] -translate-x-[50%] -translate-y-[50%] 
         bg-white z-[100] opacity-100 rounded-xl shadow-2xl
         w-[85vw] h-[600px] sm:w-[400px] xl:w-[500px] 3xl:w-[700px]
       `}

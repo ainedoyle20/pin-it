@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { StateContext } from '../context/StateContext';
 import { GiCancel } from 'react-icons/gi';
 
 import { categories } from '../lib/data';
 import { tuneFeed, removeFromTuneFeed } from '../lib/utils';
 
-const TuneFeed = ({ userId, setShowTuneFeed, userDetails }) => {
+const TuneFeed = ({ setShowTuneFeed  }) => {
+  const { setStatusProps, userDetails, user } = useContext(StateContext);
+
   const [userThemes, setUserThemes] = useState(null);
 
   useEffect(() => {
@@ -14,6 +17,34 @@ const TuneFeed = ({ userId, setShowTuneFeed, userDetails }) => {
       setUserThemes(userDetails?.tuneFeed);
     }
   }, [userDetails]);
+
+  const handleTuneFeed = async (userId, category) => {
+    if (!userId || !category) return;
+
+    let success = await tuneFeed(userId, category);
+
+    if (success) {
+      setStatusProps({ success, message: 'A new topic has been added to your home feed'});
+    } else {
+      setStatusProps({ success: false });
+    }
+
+    setShowTuneFeed(false);
+  }
+
+  const handleRemoveFromTuneFeed = async (userId, themeKey) => {
+    if (!userId || !themeKey) return;
+
+    let success = await removeFromTuneFeed(userId, themeKey);
+
+    if (success) {
+      setStatusProps({ success, message: 'Your home feed has been updated'});
+    } else {
+      setStatusProps({ success: false });
+    }
+
+    setShowTuneFeed(false);
+  }
 
   if (!userDetails) {
     return (
@@ -33,7 +64,7 @@ const TuneFeed = ({ userId, setShowTuneFeed, userDetails }) => {
 
   return (
     <div
-      className='absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] bg-white rounded-lg shadow-2xl border-[1px] border-gray-100 z-[200] flex flex-col items-center p-3 w-[90vw] sm:w-[80vw] xl:w-[75vw] h-[80vh] overflow-scroll'
+      className='absolute top-[55%] left-[50%] -translate-x-[50%] -translate-y-[50%] bg-white rounded-lg shadow-2xl border-[1px] border-gray-100 z-[200] flex flex-col items-center p-3 w-[90vw] sm:w-[80vw] xl:w-[75vw] h-[80vh] overflow-scroll'
     >
       <div className='w-full flex justify-end mt-3 mr-3'>
         <button type='button' className='p-2 rounded-3xl hover:shadow-lg' onClick={() => setShowTuneFeed(false)}>
@@ -69,7 +100,7 @@ const TuneFeed = ({ userId, setShowTuneFeed, userDetails }) => {
               <button
                 type="button"
                 className='py-2 px-3 bg-gray-100 text-lg font-semibold rounded-3xl hover:bg-gray-300'
-                onClick={() => removeFromTuneFeed(userId, theme._key)}
+                onClick={() => handleRemoveFromTuneFeed(user?.uid, theme._key)}
               >
                 Remove
               </button>
@@ -104,7 +135,7 @@ const TuneFeed = ({ userId, setShowTuneFeed, userDetails }) => {
             <button
               type="button"
               className='py-2 px-3 bg-gray-100 text-lg font-semibold rounded-3xl hover:bg-gray-300'
-              onClick={() => tuneFeed(userId, category)}
+              onClick={() => handleTuneFeed(user?.uid, category)}
             >
               Add
             </button>
