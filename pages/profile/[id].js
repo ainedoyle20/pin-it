@@ -73,12 +73,20 @@ const Profile = ({ userUrlId, profileDetails, boards, createdPins }) => {
     }
   }
 
+  const handleRemoveUnorganisedPin = (pinId) => {
+    client.patch(unorganisedBoard[0]._id)
+      .unset([`savedPins[_ref=="${pinId}"]`])
+      .commit()
+      .then(() => console.log("success removing unorganised pin"))
+      .catch((error) => console.log("error removing unorganised pin", error))
+  }
+
   return (
     <div className="min-h-screen w-full flex flex-col items-center pt-24">
       <button 
         type="button" 
         onClick={handleLogout} 
-        className="border-2 border-black p-3 rounded-lg"
+        className="p-2 rounded-lg mt-3 hover:text-lg"
       >
         Log out
       </button>
@@ -136,51 +144,67 @@ const Profile = ({ userUrlId, profileDetails, boards, createdPins }) => {
           </div>
 
           {(unorganisedBoard?.length && unorganisedBoard[0]?.savedPins?.length) ? (
-            <div className="w-full border-t-2 border-gray-300 mt-12 pt-12 flex flex-col">
-              <div className="w-full flex justify-between items-center mb-8 sm:px-3">
-                <span className="text-2xl font-semibold">Unorganised ideas</span>
+            <div className="relative w-full min-h-[80vh] border-t-2 border-gray-300 mt-12 pt-12 flex flex-col">
+              {showOrganiseBoard && unorganisedBoard?.length && unorganisedBoard[0]?.savedPins ? (
+                <OrganiseBoard userId={userUrlId} pins={unorganisedBoard[0]?.savedPins} setShowOrganiseBoard={setShowOrganiseBoard} profileBoardId={unorganisedBoard[0]?._id} />
+              ) : (
+                null
+              )
+              }
+
+              <div className="w-full flex justify-between items-center mb-8 px-5">
+                <span className="text-md sm:text-2xl font-semibold">Unorganised ideas</span>
                 <button 
                   type="button" 
                   onClick={() => setShowOrganiseBoard(true)}
-                  className="text-lg font-medium p-3 rounded-3xl bg-gray-100 hover:bg-gray-200"
+                  className="text-sm sm:text-lg font-medium p-2 sm:p-3 rounded-3xl bg-gray-100 hover:bg-gray-200"
                 >
                   Organise
                 </button>
               </div>
-              <MasonryLayout pins={unorganisedBoard[0]?.savedPins} userId={userUrlId} />
+              <MasonryLayout pins={unorganisedBoard[0]?.savedPins} userId={userUrlId} unorganised={true} handleRemoveUnorganisedPin={handleRemoveUnorganisedPin} />
             </div>
           ): (
             null
           )}
         </>
       )}
-
-      {showOrganiseBoard && unorganisedBoard?.length && unorganisedBoard[0]?.savedPins ? (
-        <OrganiseBoard userId={userUrlId} pins={unorganisedBoard[0]?.savedPins} setShowOrganiseBoard={setShowOrganiseBoard} profileBoardId={unorganisedBoard[0]?._id} />
-      ) : (
-        null
-      )
-      }
-        
     </div>
   );
 }
 
 export const getServerSideProps = async (context) => {
   const userUrlId = context.query.id;
-
   let profileDetails = null;
-  const userQ = userQuery(userUrlId);
-  const profile = await client.fetch(userQ);
-  profileDetails = profile[0];
-
   let boards = null;
-  const query = boardsQuery(userUrlId);
-  boards = await client.fetch(query);
-
   let createdPins = null;
-  const createdPinsQ = createdPinsQuery(userUrlId);
-  createdPins = await client.fetch(createdPinsQ);
+
+  if (userUrlId) {
+    const userQ = userQuery(userUrlId);
+    const profile = await client.fetch(userQ);
+
+    if (profile) {
+      profileDetails = profile[0];
+
+    
+      const query = boardsQuery(userUrlId);
+      boards = await client.fetch(query);
+
+      
+      const createdPinsQ = createdPinsQuery(userUrlId);
+      createdPins = await client.fetch(createdPinsQ); 
+    }
+  }
+
+  if (!profileDetails) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      }
+    }
+  }
+  
 
   return {
     props: {

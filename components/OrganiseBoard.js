@@ -14,8 +14,6 @@ const OrganiseBoard = ({ userId, pins, setShowOrganiseBoard, profileBoardId }) =
   useEffect(() => {
     if(!selectedBoardId.length) return;
 
-    console.log("Saving selected pins");
-
     selectedPins.map((pinId) => {
       savePin(selectedBoardId, pinId);
     });
@@ -30,11 +28,9 @@ const OrganiseBoard = ({ userId, pins, setShowOrganiseBoard, profileBoardId }) =
 
   const togglePin = (pinId) => {
     if (selectedPins.includes(pinId)) {
-      console.log("Pin already selected");
       const newSelectedPins = selectedPins.filter((pinID) => pinID !== pinId);
       setSelectedPins(newSelectedPins);
     } else {
-      console.log("Pin is not selected");
       setSelectedPins([ ...selectedPins, pinId ]);
     }
   }
@@ -42,22 +38,22 @@ const OrganiseBoard = ({ userId, pins, setShowOrganiseBoard, profileBoardId }) =
   return (
     <>
     <div 
-      className='absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] shadow-2xl rounded-3xl w-[90vw] h-[70vh] bg-white p-3 overflow-scroll flex flex-col'
+      className={`${showChooseBoard ? 'hidden' : 'absolute'} top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] z-50 shadow-2xl border-[1px] border-gray-500 rounded-3xl w-[90vw] sm:w-[600px] xl:w-[700px] h-[60vh] bg-white p-3 overflow-scroll flex flex-col`}
     >
       <div className='w-full flex flex-row justify-center my-8'>
-        <h2 className='text-3xl font-semibold'>
+        <h2 className='text-md md:text-xl lg:text-3xl font-semibold'>
           {selectedPins.length ? (
             `${selectedPins.length} selected`
           ) : (
-            'Organise into a board'
+            'Select a pin(s) to organise'
           )}
         </h2> 
         <button
           type='button'
           onClick={() => setShowOrganiseBoard(false)}
-          className="absolute top-10 right-5 p-2 rounded-3xl hover:shadow-xl flex justify-center items-center"
+          className="absolute top-9 right-2 md:right-5 p-2 rounded-3xl hover:shadow-xl flex justify-center items-center text-xl md:text-3xl"
         >
-          <GiCancel size={30} />
+          <GiCancel />
         </button>
       </div>
       
@@ -69,7 +65,9 @@ const OrganiseBoard = ({ userId, pins, setShowOrganiseBoard, profileBoardId }) =
           type="button"
           disabled={!selectedPins.length}
           className={`p-3 px-5 ${selectedPins?.length ? 'bg-red-600 text-white hover:text-lg' : 'bg-gray-100 text-gray-500' } rounded-3xl`}
-          onClick={() => setShowChooseBoard(true)}
+          onClick={() => {
+            setShowChooseBoard(true)
+          }}
         >
           Next
         </button>

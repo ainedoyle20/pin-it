@@ -5,8 +5,9 @@ import { urlFor } from '../lib/client';
 
 const Board = ({ board }) => {
   const router = useRouter();
-  // console.log(board);
+
   const { name, _id, savedPins } = board;
+  
   return (
     <div 
       className='w-[300px] flex flex-col gap-2 p-2 cursor-pointer group'

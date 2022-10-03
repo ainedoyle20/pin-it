@@ -3,6 +3,7 @@ import Router from 'next/router';
 import { Circles } from 'react-loader-spinner';
 // import Layout from '../components/Layout';
 import Navbar from '../components/Navbar';
+import StateContextProvider from '../context/StateContext';
 import '../styles/globals.css';
 
 import { client } from '../lib/client';
@@ -66,18 +67,14 @@ function MyApp({ Component, pageProps }) {
           width="80"
           color="#65B2FF"
           ariaLabel="circles-loading"
-          // wrapperStyle={{}}
-          // wrapperClass=""
           visible={true}
         />
       </div>
     ) : (
-      <>
-      {/* <Layout> */}
+      <StateContextProvider>
         <Navbar {...pageProps} userId={userId} userDetails={userDetails}  />
         <Component {...pageProps} userId={userId} userDetails={userDetails} />
-      {/* </Layout> */}
-      </>
+      </StateContextProvider>
     )}
     </>
   );

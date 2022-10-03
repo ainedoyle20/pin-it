@@ -1,12 +1,7 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import MasonryLayout from './MasonryLayout';
 
 const PinsContainer = ({ pins, userId }) => {
-  
-
-  useEffect(() => {
-    console.log('got in here');
-  }, []);
 
   if (!pins) {
     return (

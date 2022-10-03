@@ -85,12 +85,12 @@ const Navbar = ({ userId, userDetails }) => {
               <img 
                 alt="profile pic"
                 src={urlFor(userDetails?.image).url()}
-                className="w-8 h-8 sm:w-10 sm:h-10 2xl:w-12 2xl:h-12 rounded-3xl"
+                className="w-8 h-8 sm:w-10 sm:h-10 2xl:w-12 2xl:h-12 rounded-3xl cursor-pointer"
               />
             ) : (
              <button 
                 type='button'
-                className='w-8 h-8 sm:h-10 sm:w-10 rounded-3xl hover:bg-[#e9e9e9]'
+                className='w-8 h-8 sm:h-10 sm:w-10 rounded-3xl hover:bg-[#e9e9e9] cursor-pointer'
               >
                 {userDetails?.userName ? userDetails?.userName[0] : 'P'}
               </button> 

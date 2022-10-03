@@ -23,8 +23,6 @@ const CreatePin = ({ userId, userDetails }) => {
     if (!userId) router.replace("/login");
   }, [userId])
 
-  console.log(userDetails);
-
   const uploadImage = (e) => {
     const selectedFile = e.target.files[0];
     // uploading asset to sanity
@@ -86,15 +84,16 @@ const CreatePin = ({ userId, userDetails }) => {
       );
     }
   };
+
   return (
-    <div className='w-screen h-screen flex justify-center items-center'>
-      <div className="flex flex-col justify-center items-center p-5 shadow-2xl rounded-3xl h-[60vh] lg:w-3/4">
+    <div className='w-screen h-screen flex justify-center items-center pt-20 sm:pt-24 lg:pt-0'>
+      <div className="flex flex-col justify-center items-center p-5 lg:py-14 shadow-2xl rounded-3xl w-[85vw] sm:w-[70vw]">
         {fields && (
           <p className="text-red-500 mb-5 text-xl">Please add all fields.</p>
         )}
-        <div className=" flex lg:flex-row flex-col justify-center items-center bg-white w-full h-full">
-          <div className="bg-secondaryColor p-3 flex flex-0.7 w-full h-full">
-            <div className=" flex justify-center items-center flex-col border-2 border-dotted border-gray-300 p-3 w-full h-3/4">
+        <div className="flex lg:flex-row flex-col justify-center items-center bg-white w-full h-full">
+          <div className="p-3 flex w-full sm:w-4/5 xl:w-2/4 h-full">
+            <div className="flex justify-center items-center flex-col border-2 border-dotted border-gray-300 p-3 w-full h-[200px] sm:h-[300px] xl:h-[400px] 3xl:h-[600px]">
               {loading && (
                 // <Spinner />
                 'Loading...'
@@ -115,8 +114,8 @@ const CreatePin = ({ userId, userDetails }) => {
                       <p className="text-lg">Click to upload</p>
                     </div>
 
-                    <p className="mt-32 text-gray-400">
-                      Recommendation: Use high-quality JPG, JPEG, SVG, PNG, GIF or TIFF less than 20MB
+                    <p className="text-gray-400 text-sm">
+                     Use JPG, JPEG, SVG, PNG less than 20MB
                     </p>
                   </div>
                   <input
@@ -188,9 +187,9 @@ const CreatePin = ({ userId, userDetails }) => {
                   }}
                   className="outline-none w-4/5 text-base border-b-2 border-gray-200 p-2 rounded-md cursor-pointer"
                 >
-                  <option value="others" className="sm:text-bg bg-white">Select Category</option>
+                  <option value="art" className="sm:text-bg bg-white">Select Category</option>
                   {categories.map((item) => (
-                    <option key={item.name} className="text-base border-0 outline-none capitalize bg-white text-black " value={item.name}>
+                    <option key={item.name} className="text-base border-0 outline-none capitalize bg-white text-black" value={item.name}>
                       {item.name}
                     </option>
                   ))}
@@ -202,7 +201,7 @@ const CreatePin = ({ userId, userDetails }) => {
                   onClick={savePin}
                   className="bg-red-500 text-white font-bold p-2 rounded-full w-28 outline-none"
                 >
-                  Save Pin
+                  Post Pin
                 </button>
               </div>
             </div>

@@ -23,8 +23,11 @@ const BoardDetail = ({ userId, boardId, boardDetails }) => {
 
   useEffect(() => {
     if (!boardDetails || !Object.values(boardDetails).length) {
-      console.log('in here', boardDetails);
-      router.replace(`/profile/${userId}`);
+      if (!userId) {
+        router.replace("/login");
+      } else {
+        router.replace(`/profile/${userId}`);
+      }
     } 
   }, [boardDetails]);
 

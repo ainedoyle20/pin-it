@@ -1,14 +1,12 @@
-import React, {useState} from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { FiArrowUpRight } from "react-icons/fi";
-import {MdDownloadForOffline} from 'react-icons/md';
 import { AiTwotoneDelete } from 'react-icons/ai';
 import { Circles } from 'react-loader-spinner';
 
 import { client, urlFor } from '../lib/client';
 
 const PinImage = ({ pinUrl, destination, postedBy, image, userId }) => {
-  const [pinHovered, setPinHovered] = useState(false);
 
   const deletePin = (id) => {
     client
@@ -26,8 +24,6 @@ const PinImage = ({ pinUrl, destination, postedBy, image, userId }) => {
           width="80"
           color="#65B2FF"
           ariaLabel="circles-loading"
-          // wrapperStyle={{}}
-          // wrapperClass=""
           visible={true}
         />
       </div>

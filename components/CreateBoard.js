@@ -5,8 +5,6 @@ import { handleCreateBoardWithPin, handleCreateBoard } from '../lib/utils';
 const CreateBoard = ({ setShowCreateBoard, userId, pinId, setSavingPost, setPostSaved }) => {
   const [boardName, setBoardName] = useState('');
 
-  // console.log('userId: ', userId, 'pinId: ', pinId);
-
   const handleCreate = () => {
     if (pinId) {
       setSavingPost(true);

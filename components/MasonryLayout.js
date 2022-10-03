@@ -1,15 +1,8 @@
-import React from 'react'
+import React, {useContext} from 'react';
+import { useRouter } from 'next/router';
 import Masonry from 'react-masonry-css';
 import Pin from './Pin';
-
-// const breakpointColumnsObj = {
-//   default: 4,
-//   3000: 6,
-//   2000: 5,
-//   1200: 3,
-//   1000: 2,
-//   500: 1,
-// };
+import { StateContext } from '../context/StateContext';
 
 const breakpointColumnsObj = {
   default: 3,
@@ -21,21 +14,29 @@ const breakpointColumnsObj = {
   500: 1,
 };
 
-const MasonryLayout = ({ pins, userId, selectedPins, togglePin, editBoard, handleRemovePin, disableRemoveBtn }) => (
-  <Masonry className="flex" breakpointCols={breakpointColumnsObj}>
-    {pins?.map((pin) => (
-      <Pin 
-        key={pin._id} 
-        pin={pin} 
-        userId={userId} 
-        selectedPins={selectedPins} 
-        togglePin={togglePin} 
-        editBoard={editBoard}
-        handleRemovePin={handleRemovePin}
-        disableRemoveBtn={disableRemoveBtn}
-      />
-    ))}
-  </Masonry>
-);
+const MasonryLayout = ({ pins, userId, selectedPins, togglePin, editBoard, handleRemovePin, disableRemoveBtn, unorganised, handleRemoveUnorganisedPin }) => {
+  const { filterCategory } = useContext(StateContext);
+
+  const router = useRouter();
+
+  return (
+    <Masonry className="flex" breakpointCols={breakpointColumnsObj}>
+      {pins?.filter((pin) => router.pathname === "/" ? pin.category?.toLowerCase().trim().includes(filterCategory.toLowerCase().trim()) : pin).map((pin) => (
+        <Pin 
+          key={pin._id} 
+          pin={pin} 
+          userId={userId} 
+          selectedPins={selectedPins} 
+          togglePin={togglePin} 
+          editBoard={editBoard}
+          handleRemovePin={handleRemovePin}
+          disableRemoveBtn={disableRemoveBtn}
+          unorganised={unorganised}
+          handleRemoveUnorganisedPin={handleRemoveUnorganisedPin}
+        />
+      ))}
+    </Masonry>
+  );
+};
 
 export default MasonryLayout;

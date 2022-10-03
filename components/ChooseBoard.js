@@ -1,13 +1,15 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import { GiCancel } from 'react-icons/gi';
 import { BsPlusLg } from 'react-icons/bs';
 
-import { client } from '../lib/client';
+import { StateContext } from '../context/StateContext';
+import { client, urlFor } from '../lib/client';
 import { boardsQuery } from '../lib/data';
 import { savePin } from '../lib/utils';
 
-const ChooseBoard = ({ setShowChooseBoard, handleCreateBoard, userId, pinId, widthVal, heightVal, setSelectedBoardId }) => {
-  const [searchBoard, setSearchBoard] = useState("");
+const ChooseBoard = ({ setShowChooseBoard, handleCreateBoard, userId, pinId, setSelectedBoardId }) => {
+  const { searchBoard, setSearchBoard } = useContext(StateContext);
+
   const [boards, setBoards] = useState([]);
 
   const fetchBoards = async () => {
@@ -17,7 +19,6 @@ const ChooseBoard = ({ setShowChooseBoard, handleCreateBoard, userId, pinId, wid
       const query = boardsQuery(userId);
       const boards = await client.fetch(query);
       setBoards(boards);
-      // console.log(boards);
     } catch (error) {
       console.log("Error fetching boards: ", error);
     }
@@ -38,7 +39,11 @@ const ChooseBoard = ({ setShowChooseBoard, handleCreateBoard, userId, pinId, wid
 
   return (
     <div 
-      className={`absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] bg-white ${widthVal ? widthVal : 'w-[400px]'} ${heightVal ? heightVal : 'h-[600px]'} z-[100] opacity-100 rounded-xl shadow-2xl overflow-hidden`}
+      className={`
+        absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] 
+        bg-white z-[100] opacity-100 rounded-xl shadow-2xl
+        w-[85vw] h-[600px] sm:w-[400px] xl:w-[500px] 3xl:w-[700px]
+      `}
     >
       <div className='w-full flex flex-row items-center justify-between p-3 h-[12%]'>
         <div className='w-[10%]'></div>
@@ -58,19 +63,28 @@ const ChooseBoard = ({ setShowChooseBoard, handleCreateBoard, userId, pinId, wid
         />
       </div>
 
-      <div className='w-full h-[63%] overflow-scroll flex flex-col items-center px-5'>
+      <div className='w-full h-[65%] overflow-scroll flex flex-col items-center px-5'>
 
         <span
           className='font-light text-sm w-full my-5'
         >Your boards</span>
 
         {boards && (
-          boards.map((board) => (
+          boards.filter((board) => board.name.toLowerCase().trim().includes(searchBoard.toLowerCase().trim())).map((board) => (
             <div key={`${board._id}`} 
               className="flex items-center gap-2 my-2 p-2 w-full hover:shadow-lg rounded-lg cursor-pointer" 
               onClick={() => handleClickedBoard(board._id, pinId)}
             >
-              <div className='border-[1px] border-black w-14 h-14 rounded-lg'></div>
+              {board?.savedPins?.length ? (
+                <img 
+                  alt="board cover"
+                  src={urlFor(board.savedPins[0].image).url()}
+                  className="w-12 h-12 rounded-lg"
+                />
+              ) : (
+                <div className='bg-gray-100 w-14 h-14 rounded-lg'></div>
+              )}
+              
               <span>{board.name} {board.name === 'Profile' ? '(Default)' : ''}</span>
             </div>
           ))
@@ -78,11 +92,11 @@ const ChooseBoard = ({ setShowChooseBoard, handleCreateBoard, userId, pinId, wid
       </div>
 
       <div 
-        className='h-[15%] w-full flex items-center gap-2 px-7 hover:bg-gray-200 cursor-pointer shadow-2xl'
+        className='w-full h-[80px] flex items-center justify-center p-5 gap-2 border-t-[1px] border-gray-100 hover:bg-gray-200 cursor-pointer rounded-b-2xl'
         onClick={handleCreateBoard}
       >
-        <div className='bg-gray-200 w-14 h-14 rounded-lg flex justify-center items-center'>
-          <BsPlusLg size={30} />
+        <div className='bg-gray-200 rounded-lg flex justify-center items-center p-2'>
+          <BsPlusLg size={20} />
         </div>
         <span
           className='text-xl font-medium'

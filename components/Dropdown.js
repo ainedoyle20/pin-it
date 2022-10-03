@@ -13,7 +13,7 @@ const Dropdown = ({ setShowTuneFeed, setShowDropdown, userId }) => {
   const getUserDetails = async (id) => {
     const query = userQuery(id);
     const userDetails = await client.fetch(query);
-    // console.log(userDetails[0]);
+    
     setUserDetails(userDetails[0]);
   }
 
@@ -38,7 +38,7 @@ const Dropdown = ({ setShowTuneFeed, setShowDropdown, userId }) => {
       className='absolute z-[200] top-20 right-3 min-h-[500px] min-w-[300px]'
     >
         {userDetails ? (
-          <div className='w-full h-full bg-white flex flex-col justify-center border-2 border-black rounded-lg'>
+          <div className='w-full h-full bg-white flex flex-col justify-center border-[1px] border-gray-100 shadow-2xl rounded-lg'>
             <div className='w-full flex p-3 px-5 my-3 hover:shadow-lg rounded-lg cursor-pointer'>
               {userDetails?.image && (
                 <img 
@@ -70,15 +70,12 @@ const Dropdown = ({ setShowTuneFeed, setShowDropdown, userId }) => {
               Tune Feed
             </span>
   
-            <div className='w-full flex justify-start px-3 py-3'>
-              <button
-                type='button'
-                onClick={handleLogout}
-                className="p-2 rounded-3xl hover:shadow-lg text-lg"
-              >
-                Logout
-              </button>
-            </div>
+            <span
+              onClick={handleLogout}
+              className='text-xl p-2 px-5 rounded-lg hover:shadow-lg my-2 cursor-pointer'
+            >
+              Logout
+            </span>
           </div>
         ) : (
           <div className='w-full h-full bg-white flex flex-col items-center justify-center border-2 border-black rounded-lg'>
