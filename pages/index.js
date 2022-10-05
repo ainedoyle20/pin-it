@@ -1,10 +1,10 @@
 import React, {useEffect, useState, useContext} from 'react';
 import { StateContext } from '../context/StateContext';
 import { Circles } from 'react-loader-spinner';
+import axios from 'axios';
 
 import PinsContainer from '../components/PinsContainer';
-import { client } from '../lib/client';
-import { pinsQuery } from '../lib/data';
+import { BASE_URL } from '../lib/utils';
 
 const Home = ({ pins }) => {
   const { userDetails } = useContext(StateContext);
@@ -20,7 +20,7 @@ const Home = ({ pins }) => {
       setLoading(false);
       return;
     } else {
-      const newPins = pins.filter((pin) => tuneFeed?.find(theme => theme.name === pin.category));
+      const newPins = pins?.filter((pin) => tuneFeed?.find(theme => theme.name === pin.category));
 
       setFilteredPins(newPins); 
       setLoading(false);
@@ -49,8 +49,6 @@ const Home = ({ pins }) => {
 }
 
 export const getServerSideProps = async (context) => {
-  const pins = await client.fetch(pinsQuery);
-
   if (!context.req.cookies.currentUser) {
     return {
       redirect: {
@@ -60,8 +58,10 @@ export const getServerSideProps = async (context) => {
     }
   }
 
+  const {data} = await axios.get(`${BASE_URL}/api/pins`);
+
   return {
-    props: {pins}
+    props: {pins: data}
   }
 }
 

@@ -1,24 +1,29 @@
 import React, {useState, useEffect, useContext} from 'react';
+import { useRouter } from 'next/router';
 import { GiCancel } from 'react-icons/gi';
 import { BsPlusLg } from 'react-icons/bs';
+import Image from 'next/future/image';
 
 import { StateContext } from '../context/StateContext';
-import { client, urlFor } from '../lib/client';
-import { boardsQuery } from '../lib/data';
+import { urlFor } from '../lib/client';
 import { savePin } from '../lib/utils';
+import axios from 'axios';
+
+import { BASE_URL } from '../lib/utils';
+
 
 const ChooseBoard = ({ setShowChooseBoard, handleCreateBoard, pinId, setSelectedBoardId }) => {
-  const { searchBoard, setSearchBoard, setStatusProps, user } = useContext(StateContext);
+  const { searchBoard, setSearchBoard, user } = useContext(StateContext);
 
   const [boards, setBoards] = useState([]);
+  const router = useRouter()
 
   const fetchBoards = async () => {
     if (!user?.uid) return;
 
     try {
-      const query = boardsQuery(user?.uid);
-      const boards = await client.fetch(query);
-      setBoards(boards);
+      const {data} = await axios.get(`${BASE_URL}/api/boards/${user.uid}`);
+      setBoards(data);
     } catch (error) {
       console.log("Error fetching boards: ", error);
     }
@@ -33,11 +38,7 @@ const ChooseBoard = ({ setShowChooseBoard, handleCreateBoard, pinId, setSelected
       setSelectedBoardId(boardId);
     } else {
       const success = savePin(boardId, pinId);
-      if (success) {
-        setStatusProps({ success: true, message: 'Your pin was successfully saved'});
-      } else {
-        setStatusProps({ success: false });
-      }
+      if (success) router.replace(`/profile/${user?.uid}`);
     }
     setShowChooseBoard(false);
   }
@@ -81,10 +82,12 @@ const ChooseBoard = ({ setShowChooseBoard, handleCreateBoard, pinId, setSelected
               onClick={() => handleClickedBoard(board._id, pinId)}
             >
               {board?.savedPins?.length ? (
-                <img 
+                <Image 
                   alt="board cover"
                   src={urlFor(board.savedPins[0].image).url()}
                   className="w-12 h-12 rounded-lg"
+                  width={500}
+                  height={500}
                 />
               ) : (
                 <div className='bg-gray-100 w-14 h-14 rounded-lg'></div>

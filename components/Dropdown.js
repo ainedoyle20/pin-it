@@ -2,6 +2,7 @@ import React, {useContext } from 'react';
 import { StateContext } from '../context/StateContext';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import Image from 'next/future/image';
 
 import { handleSignOut } from '../lib/utils';
 import { urlFor } from '../lib/client';
@@ -22,12 +23,16 @@ const Dropdown = ({ setShowTuneFeed, setShowDropdown }) => {
     >
         {userDetails ? (
           <div className='w-full h-full bg-white flex flex-col justify-center border-[1px] border-gray-100 shadow-2xl rounded-lg'>
-            <div className='w-full flex p-3 px-5 my-3 hover:shadow-lg rounded-lg cursor-pointer'>
+            <div className='w-full flex items-center p-3 px-5 my-3 hover:shadow-lg rounded-lg cursor-pointer gap-3'
+              onClick={() => router.push(`/profile/${user?.uid}`)}
+            >
               {userDetails?.image && (
-                <img 
+                <Image 
                   alt="user pic"
                   src={urlFor(userDetails?.image).url()}
-                  className="w-8 h-8 rounded-3xl"
+                  className="w-10 h-10 rounded-3xl"
+                  width={30}
+                  height={30}
                 />
               )}
               <span

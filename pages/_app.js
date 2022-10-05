@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react';
 import Router from 'next/router';
 import { Circles } from 'react-loader-spinner';
 import Navbar from '../components/Navbar';
-import StatusBanner from '../components/StatusBanner';
 import {StateContextProvider} from '../context/StateContext';
 import { CookiesProvider } from 'react-cookie';
 import '../styles/globals.css';
@@ -45,7 +44,6 @@ function MyApp({ Component, pageProps }) {
           <CookiesProvider>
             <Component {...pageProps} />
           </CookiesProvider>
-          <StatusBanner />
       </StateContextProvider>
     )}
     </>

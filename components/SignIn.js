@@ -22,7 +22,7 @@ const SignIn = () => {
     if (success) {
       router.replace("/");
     } else {
-      alert('Sorry something went wrong please try again');
+      alert('Incorrect details, please try again');
     }
   }
 

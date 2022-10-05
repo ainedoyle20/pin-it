@@ -1,5 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/router';
+import Image from 'next/future/image';
 
 import { urlFor } from '../lib/client';
 
@@ -14,10 +15,12 @@ const Board = ({ board }) => {
       onClick={() => router.push(`/board/${_id}`)}
     >
       {(savedPins?.length > 0) ? (
-        <img 
+        <Image 
           alt="board pic"
           src={urlFor(savedPins[0]?.image).url()}
           className="h-[200px] w-full rounded-lg group-hover:opacity-90"
+          width={500}
+          height={500}
         />
       ) : (
         <div className='border-2 border-black h-[200px] w-full rounded-lg bg-gray-100'/>

@@ -1,9 +1,9 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import { onAuthStateChanged, auth } from '../lib/firebase';
 import { useCookies } from 'react-cookie';
+import axios from 'axios';
 
-import { userQuery } from '../lib/data';
-import { client } from '../lib/client';
+import {BASE_URL} from '../lib/utils';
 
 export const StateContext = createContext({});
 
@@ -13,29 +13,29 @@ export const StateContextProvider = ({children}) => {
   const [searchCategory, setSearchCategory] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
   const [searchBoard, setSearchBoard] = useState("");
-  const [statusProps, setStatusProps] = useState(null);
   const [user, setUser] = useState(null);
   const [userDetails, setUserDetails] = useState(null);
-
+  
   const onSearch = () => {
     setFilterCategory(searchCategory);
   }
 
   const getUserDetails = async (id) => {
-    const query = userQuery(id);
-    const userDetails = await client.fetch(query);
+    const {data} = await axios.get(`${BASE_URL}/api/profile/${id}`);
     
-    setUserDetails(userDetails[0]);
+    if (data) {
+      setUserDetails(data);
+    }
   }
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentuser) => {
       setUser(currentuser);
-
+      
       if (currentuser) {
         setCookie('currentUser', true, { path: '/' });
       } else {
-        removeCookie('currentUser', true, { path: '/' });
+        removeCookie('currentUser', { path: '/' });
       }
     });
 
@@ -59,8 +59,6 @@ export const StateContextProvider = ({children}) => {
     onSearch,
     searchBoard,
     setSearchBoard,
-    statusProps,
-    setStatusProps,
     setUserDetails,
     user,
     userDetails,

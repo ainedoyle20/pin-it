@@ -1,11 +1,13 @@
 import React, {useState} from 'react';
 import Link from 'next/link';
+import Image from 'next/future/image';
 import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { MdDelete } from 'react-icons/md';
+import axios from 'axios';
 
 import { client, urlFor } from '../../../lib/client';
-import { userQuery } from '../../../lib/data';
 import { editUserImage, editUserName, editUserWebsite } from '../../../lib/utils';
+import { BASE_URL } from '../../../lib/utils';
 
 const EditProfile = ({userProfile}) => {
   const [profileImage, setProfileImage] = useState();
@@ -88,10 +90,12 @@ const EditProfile = ({userProfile}) => {
 
           <div className='w-[50%] flex gap-8 items-center justify-center md:justify-start'>
             {userProfile?.image && !showUploadImage ? (
-              <img 
+              <Image 
                 alt="user pic"
                 src={urlFor(userProfile?.image).url()}
                 className="w-16 h-16 rounded-3xl"
+                width={100}
+                height={100}
               />
             ): !showUploadImage ? (
               <div className='w-16 h-16 rounded-3xl bg-gray-100' />
@@ -126,10 +130,12 @@ const EditProfile = ({userProfile}) => {
                   </label>
                 ) : (
                   <div className="relative h-full">
-                    <img
+                    <Image
                       src={profileImage?.url}
                       alt="uploaded-pic"
                       className="h-full w-full"
+                      width={50}
+                      height={50}
                     />
                     <button
                       type="button"
@@ -273,9 +279,8 @@ export const getServerSideProps = async (context) => {
   let userProfile;
 
   if (userId) {
-    const userQ = userQuery(userId);
-    userProfile = await client.fetch(userQ);
-    userProfile = userProfile.length ? userProfile[0] : null;
+    const {data} = await axios.get(`${BASE_URL}/api/profile/${userId}`);
+    userProfile=data;
   }
 
   if (!userProfile) {

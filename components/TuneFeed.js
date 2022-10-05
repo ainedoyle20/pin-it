@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useRouter } from 'next/router';
+import Image from 'next/future/image';
 import { StateContext } from '../context/StateContext';
 import { GiCancel } from 'react-icons/gi';
 
@@ -6,9 +8,10 @@ import { categories } from '../lib/data';
 import { tuneFeed, removeFromTuneFeed } from '../lib/utils';
 
 const TuneFeed = ({ setShowTuneFeed  }) => {
-  const { setStatusProps, userDetails, user } = useContext(StateContext);
+  const { userDetails, user } = useContext(StateContext);
 
   const [userThemes, setUserThemes] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (!userDetails?.tuneFeed) {
@@ -24,26 +27,20 @@ const TuneFeed = ({ setShowTuneFeed  }) => {
     let success = await tuneFeed(userId, category);
 
     if (success) {
-      setStatusProps({ success, message: 'A new topic has been added to your home feed'});
-    } else {
-      setStatusProps({ success: false });
-    }
-
-    setShowTuneFeed(false);
+      setShowTuneFeed(false);
+      router.replace("/");
+    } 
   }
 
-  const handleRemoveFromTuneFeed = async (userId, themeKey) => {
-    if (!userId || !themeKey) return;
+  const handleRemoveFromTuneFeed = async (userId, theme) => {
+    if (!userId || !theme) return;
 
-    let success = await removeFromTuneFeed(userId, themeKey);
+    let success = await removeFromTuneFeed(userId, theme);
 
     if (success) {
-      setStatusProps({ success, message: 'Your home feed has been updated'});
-    } else {
-      setStatusProps({ success: false });
-    }
-
-    setShowTuneFeed(false);
+      setShowTuneFeed(false);
+      router.replace("/");
+    } 
   }
 
   if (!userDetails) {
@@ -87,10 +84,12 @@ const TuneFeed = ({ setShowTuneFeed  }) => {
               className='w-[250px] relative flex flex-col gap-2 p-3 hover:bg-gray-200 rounded-lg'
 
             >
-              <img 
-              alt="topic"
-              src={theme.image}
-              className="h-[200px] w-full rounded-xl"
+              <Image 
+                alt="topic"
+                src={theme.image}
+                className="h-[200px] w-full rounded-xl"
+                width={500}
+                height={500}
               />
 
               <span
@@ -100,7 +99,7 @@ const TuneFeed = ({ setShowTuneFeed  }) => {
               <button
                 type="button"
                 className='py-2 px-3 bg-gray-100 text-lg font-semibold rounded-3xl hover:bg-gray-300'
-                onClick={() => handleRemoveFromTuneFeed(user?.uid, theme._key)}
+                onClick={() => handleRemoveFromTuneFeed(user?.uid, theme)}
               >
                 Remove
               </button>
@@ -122,10 +121,12 @@ const TuneFeed = ({ setShowTuneFeed  }) => {
             key={`${category.name}${i}`}
             className="relative w-[250px] flex flex-col gap-2 p-3 hover:bg-gray-200 rounded-lg"
           >
-            <img 
+            <Image 
               alt="topic"
               src={category.image}
               className="h-[200px] w-full rounded-xl"
+              width={500}
+              height={500}
             />
 
             <span

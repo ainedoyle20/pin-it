@@ -1,18 +1,19 @@
 import React, { useState, useContext } from 'react';
 import { StateContext } from '../../context/StateContext';
 import { useRouter } from 'next/router';
+import Image from 'next/future/image';
 import { RiDeleteBin7Fill } from 'react-icons/ri';
 import { AiFillEdit } from 'react-icons/ai'
 import {Circles} from 'react-loader-spinner';
+import axios from 'axios';
 
-import { specificBoardQuery } from '../../lib/data';
-import { client, urlFor } from '../../lib/client';
+import { urlFor } from '../../lib/client';
 import { removeSavedPin } from '../../lib/utils';
-
 import MasonryLayout from '../../components/MasonryLayout';
+import { BASE_URL } from '../../lib/utils';
 
 const BoardDetail = ({ boardId, boardDetails }) => {
-  const { setStatusProps, user } = useContext(StateContext);
+  const { user } = useContext(StateContext);
 
   const [showDeleteWarning, setShowDeleteWarning] = useState(false);
   const [deletingBoard, setDeletingBoard] = useState(false);
@@ -21,35 +22,19 @@ const BoardDetail = ({ boardId, boardDetails }) => {
 
   const router = useRouter();
 
-  const deleteBoard = (id) => {
-    client
-      .delete(id)
-      .then(() => {
-        setDeletingBoard(true);
-        setTimeout(() => {
-          router.replace(`/profile/${user?.uid}`);
-        }, 2000);
-      })
-      .catch((err) => console.log('error deleting board: ', err));
+  const deleteBoard = async () => {
+    await axios.delete(`${BASE_URL}/api/boards/specific/${boardId}`);
+
+    router.replace(`/profile/${user?.uid}`);
   };
 
   const handleRemovePin = async (id) => {
     setDisableRemoveBtn(true);
     setDeletingBoard(true);
 
-    const success = await removeSavedPin(boardId, id);
+    const data = await removeSavedPin(boardId, id);
 
-    if (success) {
-      setStatusProps({success: true, message: `Removed pin from ${boardDetails?.name ? boardDetails?.name : 'board'}`})
-      setTimeout(() => {
-        window.location.reload();
-      }, 5000); 
-    } else {
-      setStatusProps({succes: false });
-      setTimeout(() => {
-        window.location.reload();
-      }, 5000); 
-    }
+    if (data) router.replace(`/profile/${user?.uid}`);
   }
 
   if (!user) {
@@ -124,10 +109,12 @@ const BoardDetail = ({ boardId, boardDetails }) => {
 
           <div className='flex items-center gap-3 rounded-3xl p-3 px-5 hover:shadow-lg cursor-pointer'>
             {boardDetails?.postedBy?.image && (
-              <img
+              <Image
                 alt="user pic"
                 src={urlFor(boardDetails?.postedBy?.image).url()}
                 className="w-10 h-10 rounded-lg"
+                width={30}
+                height={30}
               />  
             )}
 
@@ -177,7 +164,7 @@ const BoardDetail = ({ boardId, boardDetails }) => {
               >Cancel</button>
               <button
                 type='button'
-                onClick={() => deleteBoard(boardId)}
+                onClick={deleteBoard}
                 className="px-5 py-3 text-lg bg-gray-100 rounded-3xl hover:bg-gray-300"
               >Confirm</button>
             </div>
@@ -193,12 +180,8 @@ export const getServerSideProps = async (context) => {
   let boardDetails = null;
 
   if (boardId) {
-    const specificBoardQ = specificBoardQuery(boardId);
-    boardDetails = await client.fetch(specificBoardQ);
-
-    if (boardDetails?.length) {
-      boardDetails = boardDetails[0];
-    }
+    const {data} = await axios.get(`${BASE_URL}/api/boards/specific/${boardId}`);
+    boardDetails=data;
   }
 
   if (!boardDetails || !Object.values(boardDetails).length) {

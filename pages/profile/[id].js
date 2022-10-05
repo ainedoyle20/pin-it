@@ -1,17 +1,17 @@
-import React, {useState, useEffect, useContext} from "react";
-import { StateContext } from "../../context/StateContext";
+import React, {useState, useEffect} from "react";
 import { useRouter } from "next/router";
+import Image from "next/future/image";
+import axios from "axios";
 
-import { urlFor, client } from '../../lib/client';
-import { boardsQuery, createdPinsQuery, userQuery } from '../../lib/data';
+import { urlFor } from '../../lib/client';
 import { handleSignOut } from '../../lib/utils';
 import Board from "../../components/Board";
 import MasonryLayout from '../../components/MasonryLayout';
 import OrganiseBoard from "../../components/OrganiseBoard";
+import { BASE_URL } from "../../lib/utils";
+import Link from "next/link";
 
 const Profile = ({ userUrlId, profileDetails, boards, createdPins }) => {
-  const { setStatusProps, user } = useContext(StateContext);
-
   const [activeButton, setActiveButton] = useState('Created');
   const [organisedBoards, setOrganisedBoards] = useState([]);
   const [unorganisedBoard, setUnorganisedBoard] = useState([]);
@@ -34,17 +34,12 @@ const Profile = ({ userUrlId, profileDetails, boards, createdPins }) => {
     router.replace("/login");
   }
 
-  const handleRemoveUnorganisedPin = (pinId) => {
-    client.patch(unorganisedBoard[0]._id)
-      .unset([`savedPins[_ref=="${pinId}"]`])
-      .commit()
-      .then(() => {
-        setStatusProps({ success: true, message: "Pin removed" });
-      })
-      .catch((error) => {
-        console.log("error removing unorganised pin", error);
-        setStatusProps({ success: false });
-      })
+  const handleRemoveUnorganisedPin = async (pinId) => {
+
+    const boardId = unorganisedBoard[0]?._id;
+    await axios.put(`${BASE_URL}/api/boards/specific/${boardId}`, { pinId, save: false });
+
+    router.replace(`/profile/${userUrlId}`);
   }
 
   return (
@@ -59,14 +54,23 @@ const Profile = ({ userUrlId, profileDetails, boards, createdPins }) => {
 
 
       {profileDetails && (
-        <img
+        <Image
           src={urlFor(profileDetails?.image).url()}
           alt="profile-pic"
           className="w-40 h-40 rounded-[100%] mt-8"
+          width={100}
+          height={100}
         />  
       )}
 
-      <span className="mt-10 text-3xl font-bold">{profileDetails?.userName}</span>
+      <div className="mt-10 flex flex-row items-center gap-4">
+        <span className="text-3xl font-bold">{profileDetails?.userName}{profileDetails?.website ? ':' : ''}</span>
+        <Link href={profileDetails?.website}>
+          <a target="_blank" className="font-semibold text-xl hover:underline">
+            {profileDetails?.website}
+          </a>
+        </Link>
+      </div>
 
       <div className="flex flex-row gap-10 mt-10">
         <span
@@ -140,7 +144,7 @@ const Profile = ({ userUrlId, profileDetails, boards, createdPins }) => {
 }
 
 export const getServerSideProps = async (context) => {
-  const userUrlId = context.query.id;
+  const {id} = context.query;
   let profileDetails = null;
   let boards = null;
   let createdPins = null;
@@ -154,20 +158,18 @@ export const getServerSideProps = async (context) => {
     }
   }
 
-  if (userUrlId) {
-    const userQ = userQuery(userUrlId);
-    const profile = await client.fetch(userQ);
+  if (id) {
+    const res = await axios.get(`${BASE_URL}/api/profile/${id}`);
 
-    if (profile) {
-      profileDetails = profile[0];
+    if (res) {
+      profileDetails = res.data;
 
     
-      const query = boardsQuery(userUrlId);
-      boards = await client.fetch(query);
-
+      const {data} = await axios.get(`${BASE_URL}/api/boards/${id}`);
+      boards = data;
       
-      const createdPinsQ = createdPinsQuery(userUrlId);
-      createdPins = await client.fetch(createdPinsQ); 
+      const response = await axios.get(`${BASE_URL}/api/pins/${id}`);
+      createdPins = response.data;
     }
   }
 
@@ -183,7 +185,7 @@ export const getServerSideProps = async (context) => {
 
   return {
     props: {
-      userUrlId,
+      userUrlId: id,
       profileDetails,
       boards,
       createdPins,

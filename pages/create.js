@@ -1,15 +1,18 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { useRouter } from 'next/router';
+import Image from 'next/future/image';
 import { StateContext } from '../context/StateContext';
 import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { MdDelete } from 'react-icons/md';
+import axios from 'axios';
 
 import { categories } from '../lib/data';
 import { client, urlFor } from '../lib/client';
 import {Circles} from 'react-loader-spinner';
+import { BASE_URL } from '../lib/utils';
 
 const CreatePin = () => {
-  const { setStatusProps, user, userDetails } = useContext(StateContext);
+  const { user, userDetails } = useContext(StateContext);
 
   const [title, setTitle] = useState('');
   const [about, setAbout] = useState('');
@@ -19,6 +22,8 @@ const CreatePin = () => {
   const [category, setCategory] = useState();
   const [imageAsset, setImageAsset] = useState();
   const [wrongImageType, setWrongImageType] = useState(false);
+
+  const router = useRouter();
 
   const uploadImage = (e) => {
     const selectedFile = e.target.files[0];
@@ -46,7 +51,7 @@ const CreatePin = () => {
     }
   };
 
-  const postPin = () => {
+  const postPin = async () => {
     if (title && about && destination && imageAsset?._id && category) {
       const doc = {
         _type: 'pin',
@@ -67,16 +72,11 @@ const CreatePin = () => {
         },
         category,
       };
-      client.create(doc).then(() => {
-        setStatusProps({ message: 'Your pin was created', success: true })
-        setTitle("");
-        setAbout("");
-        setDestination("");
-        setImageAsset();
-      }).catch((error) => {
-        console.log('error creating pin: ', error);
-        setStatusProps({ success: false });
-      });
+
+      await axios.post(`${BASE_URL}/api/pins`, doc);
+
+      router.push('/');
+
     } else {
       setFields(true);
 
@@ -146,10 +146,12 @@ const CreatePin = () => {
                 </label>
               ) : (
                 <div className="relative h-full">
-                  <img
+                  <Image
                     src={imageAsset?.url}
                     alt="uploaded-pic"
                     className="h-full w-full"
+                    width={500}
+                    height={500}
                   />
                   <button
                     type="button"
@@ -166,12 +168,14 @@ const CreatePin = () => {
           <div className="flex flex-1 flex-col gap-6 lg:pl-5 mt-5 lg:mt-0 w-full">
             {userDetails && (
               <div className="flex gap-2 mt-2 mb-2 items-center bg-white rounded-lg ">
-                <img
+                <Image
                   src={urlFor(userDetails.image).url()}
-                  className="w-14 h-12 rounded-full"
+                  className="w-14 h-14 rounded-full"
                   alt="user-profile"
+                  width={30}
+                  height={30}
                 />
-                <p className="font-bold">{userDetails.userName}</p>
+                <p className="font-bold text-xl">{userDetails.userName}</p>
               </div>
             )}
             <input

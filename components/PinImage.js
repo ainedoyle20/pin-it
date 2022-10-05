@@ -1,21 +1,21 @@
 import React, {useContext} from 'react';
 import Link from 'next/link';
+import Image from 'next/future/image';
 import { FiArrowUpRight } from "react-icons/fi";
 import { AiTwotoneDelete } from 'react-icons/ai';
 import { Circles } from 'react-loader-spinner';
 
-import { client, urlFor } from '../lib/client';
+import { urlFor } from '../lib/client';
 import { StateContext } from '../context/StateContext';
+import { BASE_URL } from '../lib/utils';
 
 const PinImage = ({ pinUrl, destination, postedBy, image }) => {
   const { user } = useContext(StateContext);
 
-  const deletePin = (id) => {
-    client
-      .delete(id)
-      .then(() => {
-        window.location.reload();
-      });
+  const deletePin = async (id) => {
+    await axios.delete(`${BASE_URL}/api/pins/${id}`);
+
+    router.replace('/');
   };
 
   if (!pinUrl) {
@@ -34,10 +34,13 @@ const PinImage = ({ pinUrl, destination, postedBy, image }) => {
 
   return (
     <div className='relative group'>
-      <img
-          className="rounded-3xl w-full"
-          src={urlFor(image).url()}
-          alt="posted-pin"
+      <Image
+        className="rounded-3xl w-full"
+        src={urlFor(image).url()}
+        alt="posted-pin"
+        width={500}
+        height={500}
+        layout="responsive"
       />
 
       <div

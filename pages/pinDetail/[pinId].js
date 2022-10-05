@@ -1,31 +1,35 @@
 import React, {useState, useContext } from "react";
 import Link from "next/link";
+import Image from "next/future/image";
+import { useRouter } from "next/router";
 import { StateContext } from "../../context/StateContext";
 import { FaDownload } from 'react-icons/fa';
 import {GrDown} from 'react-icons/gr';
 import { RiDeleteBin7Fill } from 'react-icons/ri';
 import {Circles} from 'react-loader-spinner';
+import axios from "axios";
 
-import { client, urlFor } from '../../lib/client';
-import { pinDetailQuery, similarPinsQuery } from '../../lib/data';
+import { urlFor } from '../../lib/client';
 import { removeComment, saveComment } from '../../lib/utils';
 import MasonryLayout from '../../components/MasonryLayout';
 import PinImage from '../../components/PinImage';
 import ChooseBoard from "../../components/ChooseBoard";
 import CreateBoard from "../../components/CreateBoard";
+import { BASE_URL } from "../../lib/utils";
 
 const PinDetail = ({ pinDetail, similarPins }) => {
-  const { setStatusProps, userDetails, user } = useContext(StateContext);
+  const { userDetails, user } = useContext(StateContext);
 
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [deletingComment, setDeletingComment] = useState(false);
-  const [deletedCommentKey, setDeletedCommentKey] = useState([]);
   const [postingComment, setPostingComment] = useState(false);
   const [showChooseBoard, setShowChooseBoard] = useState(false);
   const [showCreateBoard, setShowCreateBoard] = useState(false);
 
-  const { image, title, about, destination, postedBy, comments, _id } = pinDetail[0];
+  const router = useRouter();
+
+  const { image, title, about, destination, postedBy, comments, _id } = pinDetail;
   const pinUrl = image ? (urlFor(image).url()) : null;
 
   const handleCreateBoard = () => {
@@ -36,25 +40,16 @@ const PinDetail = ({ pinDetail, similarPins }) => {
   const handleAddComment = async () => {
     setPostingComment(true);
     const success = await saveComment(_id, user?.uid, commentText);
-    if (success) {
-      setStatusProps({ success: true, message: 'Your comment was posted'});
-    } else {
-      setStatusProps({ success: false });
-    }
-    setCommentText("");
+
+    if (success) router.replace(`/pinDetail/${_id}`);
   }
 
-  const handleRemoveComment = async (commentKey) => {
+  const handleRemoveComment = async (comment) => {
     setDeletingComment(true);
 
-    const success = await removeComment(_id, commentKey);
-    if (success) {
-      setStatusProps({ success: true, message: 'Your comment was posted'});
-    } else {
-      setStatusProps({ success: false });
-    }
+    const success = await removeComment(_id, comment, user?.uid);
 
-    setDeletedCommentKey([ ...deletedCommentKey, commentKey ]);
+    if (success) router.replace(`/pinDetail/${_id}`);
   }
 
   if (!user) {
@@ -119,31 +114,36 @@ const PinDetail = ({ pinDetail, similarPins }) => {
                       >
                           Comments <GrDown className={showComments ? "font-black" :"-rotate-90 font-black"} />
                       </span>
-                      {(comments && showComments) ? comments?.filter((item) => !deletedCommentKey.includes(item._key)).map((item, i) => (
-                          <div className="flex gap-2 mt-5 items-center bg-white rounded-lg cursor-default" key={`${item.comment}${i}`}>
+                      {(comments && showComments) ? comments?.map((item, i) => (
+                          <div className="flex gap-2 mt-5 items-center bg-white rounded-lg cursor-default group" key={`${item.comment}${i}`}>
                             
                               {item.postedBy?.image && (
-                                <img
-                                    src={urlFor(item.postedBy?.image).url()}
-                                    className="w-10 h-10 rounded-full cursor-pointer"
-                                    alt="user-profile"
+                                <Image
+                                  src={urlFor(item.postedBy?.image).url()}
+                                  className="w-10 h-10 rounded-full cursor-pointer"
+                                  alt="user-profile"
+                                  width={30}
+                                  height={30}
+                                  onClick={() => router.push(`/profile/${item?.postedBy?._id}`)}
                                 />
                               )}
                               
-                              <div className="flex flex-col">
+                              <div className="flex flex-col w-full">
                                   <p className="font-bold">{item.postedBy?.userName}</p>
                                   <p>{item.comment}</p>
                               </div>
 
                               {item.postedBy?._id === user?.uid ? (
-                                <div className="h-full w-8 flex items-center ml-8 group">
-                                  {!deletingComment ? (
-                                    <RiDeleteBin7Fill 
-                                      size={20}
-                                      className="cursor-pointer hidden group-hover:block"
-                                      onClick={() => handleRemoveComment(item._key)}
-                                    /> 
-                                  ) : '...'}
+                                <div className="w-[15%] flex justify-center">
+                                  <RiDeleteBin7Fill 
+                                    size={20}
+                                    className="cursor-pointer hidden group-hover:block"
+                                    onClick={() => {
+                                      if (!deletingComment) {
+                                        handleRemoveComment(item);
+                                      }
+                                    }}
+                                  /> 
                                 </div>
                               ) : null}
                           </div>
@@ -155,10 +155,12 @@ const PinDetail = ({ pinDetail, similarPins }) => {
                   <div className="w-full flex flex-col">
                       <div className="w-full flex flex-row items-center gap-2">
                         {userDetails?.image ? (
-                          <img 
+                          <Image 
                             alt="profile pic"
                             src={urlFor(userDetails?.image).url()}
                             className='h-14 w-16 rounded-3xl'
+                            width={30}
+                            height={30}
                           />
                         ) : (
                           <button className='h-14 w-16 rounded-3xl bg-gray-200 text-xl'>
@@ -184,10 +186,12 @@ const PinDetail = ({ pinDetail, similarPins }) => {
                   <div className="w-full mt-5 h-full flex flex-col justify-end">
                       <Link href={`/profile/${postedBy._id}`}>
                           <a className="flex gap-2 items-center cursor-pointer">
-                              <img
-                              className="w-10 h-10 rounded-full object-cover"
-                              src={urlFor(postedBy?.image).url()}
-                              alt="user-profile"
+                              <Image
+                                className="w-10 h-10 rounded-full object-cover"
+                                src={urlFor(postedBy?.image).url()}
+                                alt="user-profile"
+                                width={40}
+                                height={40}
                               /> 
                               <p className="font-semibold capitalize text-lg">
                                 {postedBy?.userName}&emsp;<span className="text-xl">&#10088;</span> Creator <span className="text-xl">&#10089;</span>
@@ -198,14 +202,14 @@ const PinDetail = ({ pinDetail, similarPins }) => {
               </div>
           </div>
 
-          {similarPins?.length ? (
+          {similarPins?.filter((pin) => pin._id !== _id).length ? (
               <>
                   <h2 className="font-bold text-2xl mb-8">More Like This</h2>
 
                   <div
                     className="w-full h-full px-14"
                   >
-                    <MasonryLayout pins={similarPins} />
+                    <MasonryLayout pins={similarPins.filter((pin) => pin._id !== _id)} />
                   </div> 
                   
               </>
@@ -224,9 +228,6 @@ const PinDetail = ({ pinDetail, similarPins }) => {
 
 export const getServerSideProps = async (context) => {
   const id = context.params.pinId;
-  const pinDetailQ = pinDetailQuery(id);
-
-  const pinDetail = await client.fetch(pinDetailQ);
   let similarPins = null;
 
   if (!context.req.cookies.currentUser) {
@@ -238,9 +239,12 @@ export const getServerSideProps = async (context) => {
     }
   }
 
-  if (pinDetail[0]) {
-    const similarPinsQ = similarPinsQuery(pinDetail[0]);
-    similarPins = await client.fetch(similarPinsQ);
+  const {data} = await axios.get(`${BASE_URL}/api/pins/detail/${id}`);
+
+  if (data) {
+    const category = data.category;
+    const response = await axios.get(`${BASE_URL}/api/pins/similar/${category}`);
+    similarPins = response.data;
   } else {
     return {
       redirect: {
@@ -252,8 +256,8 @@ export const getServerSideProps = async (context) => {
 
   return {
     props: {
-        pinDetail,
-        similarPins,  
+      pinDetail: data,
+      similarPins,  
     }
   }
 }

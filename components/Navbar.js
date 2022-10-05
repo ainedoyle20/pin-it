@@ -1,6 +1,6 @@
 import React, {useState, useContext} from 'react';
 import { StateContext } from '../context/StateContext';
-import Image from 'next/image';
+import Image from 'next/future/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { AiOutlineDown } from "react-icons/ai";
@@ -37,7 +37,7 @@ const Navbar = () => {
         <div className='flex flex-row items-center'>
           <Link href="/" className="cursor-pointer rounded-3xl hover:bg-[#e9e9e9]">
             <a className="cursor-pointer rounded-3xl hover:bg-[#e9e9e9]">
-              <Image src={logo} alt="pin-it-icon" width={50} height={50} /> 
+              <Image src={logo} alt="pin-it-icon" width={50} height={50} priority /> 
             </a>
           </Link>
 
@@ -84,11 +84,15 @@ const Navbar = () => {
 
           <Link href={`/profile/${user?.uid}`}>
             {userDetails?.image ? (
-              <img 
+              <div>
+              <Image 
                 alt="profile pic"
                 src={urlFor(userDetails?.image).url()}
                 className="w-8 h-8 sm:w-10 sm:h-10 2xl:w-12 2xl:h-12 rounded-3xl cursor-pointer"
+                width={50}
+                height={50}
               />
+              </div>
             ) : (
              <button 
                 type='button'

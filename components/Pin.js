@@ -1,18 +1,20 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { StateContext } from '../context/StateContext';
-// import { v4 as uuidv4 } from 'uuid';
+import Image from 'next/future/image';
 import { MdDownloadForOffline } from 'react-icons/md';
 import { AiTwotoneDelete } from 'react-icons/ai';
 import { BsFillArrowUpRightCircleFill } from 'react-icons/bs';
+import axios from 'axios';
 
-import { client, urlFor } from '../lib/client';
+import { urlFor } from '../lib/client';
 import ChooseBoard from './ChooseBoard';
 import CreateBoard from './CreateBoard';
+import { BASE_URL } from '../lib/utils';
 
 const Pin = ({ pin, selectedPins, togglePin, editBoard, handleRemovePin, disableRemoveBtn, unorganised, handleRemoveUnorganisedPin }) => {
-  const { setStatusProps, user } = useContext(StateContext);
+  const { user } = useContext(StateContext);
 
   const [showChooseBoard, setShowChooseBoard] = useState(false);
   const [showCreateBoard, setShowCreateBoard] = useState(false);
@@ -22,18 +24,10 @@ const Pin = ({ pin, selectedPins, togglePin, editBoard, handleRemovePin, disable
 
   const { postedBy, image, _id, destination } = pin;
 
-  const deletePin = (id) => {
-    client
-      .delete(id)
-      .then(() => {
-        setStatusProps({ success: true, message: 'Pin deleted'});
-        setTimeout(() => {
-          window.location.reload(true);
-        }, 5000);
-      })
-      .catch((err) => {
-        setStatusProps({ success: false });
-      });
+  const deletePin = async (id) => {
+    await axios.delete(`${BASE_URL}/api/pins/${id}`);
+
+    router.replace('/');
   };
 
   const handleCreateBoard = () => {
@@ -58,7 +52,14 @@ const Pin = ({ pin, selectedPins, togglePin, editBoard, handleRemovePin, disable
         className={`relative ${selectedPins ? 'cursor-pointer' : editBoard ? 'cursor-default' : 'cursor-zoom-in'}  w-auto h-auto hover:shadow-lg rounded-lg`}
       >
         {image && (
-          <img className="rounded-lg w-full" src={(urlFor(image).width(300).url())} alt="user-post" /> 
+          <Image 
+            className="rounded-lg w-full" 
+            src={(urlFor(image).width(300).url())} 
+            alt="user-post" 
+            width={500}
+            height={500}
+            priority
+          /> 
         )}
 
         <div
@@ -150,10 +151,13 @@ const Pin = ({ pin, selectedPins, togglePin, editBoard, handleRemovePin, disable
       </div>
       <Link href={`/profile/${postedBy._id}`}>
         <div className="flex gap-2 mt-2 items-center cursor-pointer w-3/4">
-         <img
+         <Image
           className="w-10 h-10 rounded-full object-cover"
           src={urlFor(postedBy?.image).url()}
           alt="user-profile"
+          width={500}
+          height={500}
+          layout="responsive"
         /> 
         <p className="font-semibold capitalize text-lg">{postedBy?.userName}</p>
         </div>

@@ -2,6 +2,7 @@ import React, {useState } from 'react';
 import { useRouter } from 'next/router';
 import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { MdDelete } from 'react-icons/md';
+import Image from 'next/future/image';
 
 import { handleSignUp } from '../lib/utils';
 import { client } from '../lib/client';
@@ -54,7 +55,7 @@ const SignUp = () => {
       return;
     }
 
-    const success = await handleSignUp(signUpDetails, imageAsset);
+    await handleSignUp(signUpDetails, imageAsset);
     setSignUpDetails({
       userName: '',
       websiteLink: '',
@@ -62,12 +63,8 @@ const SignUp = () => {
       password: '',
       confirmPassword: '',
     });
-
-    if (!success) {
-      alert("Sorry something went wrong, please try again later");
-    } else {
-      router.replace("/");
-    }
+    
+    router.replace("/");
   }
 
   return (
@@ -99,10 +96,12 @@ const SignUp = () => {
           </label>
         ) : (
           <div className="relative h-full">
-            <img
+            <Image
               src={imageAsset?.url}
               alt="uploaded-pic"
               className="h-full w-full"
+              width={100}
+              height={100}
             />
             <button
               type="button"

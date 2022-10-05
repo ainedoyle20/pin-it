@@ -1,18 +1,17 @@
-import React, {useEffect, useState, useContext} from 'react';
-import { StateContext } from '../context/StateContext';
+import React, { useEffect, useState } from 'react';
 import { GiCancel } from 'react-icons/gi';
 
 import ChooseBoard from './ChooseBoard';
 import MasonryLayout from './MasonryLayout';
+import CreateBoard from './CreateBoard';
 
 import { savePin, removeSavedPin } from '../lib/utils';
 
 const OrganiseBoard = ({ userId, pins, setShowOrganiseBoard, profileBoardId }) => {
-  const { setStatusProps } = useContext(StateContext);
-
   const [selectedPins, setSelectedPins] = useState([]);
   const [showChooseBoard, setShowChooseBoard] = useState(false);
   const [selectedBoardId, setSelectedBoardId] = useState("");
+  const [showCreateBoard, setShowCreateBoard] = useState(false);
 
   useEffect(() => {
     if(!selectedBoardId.length) return;
@@ -25,8 +24,11 @@ const OrganiseBoard = ({ userId, pins, setShowOrganiseBoard, profileBoardId }) =
       removeSavedPin(profileBoardId, pinId);
     });
 
-    setStatusProps({message: 'Saved pin(s) to board', success: true });
     setShowOrganiseBoard(false);
+
+    setTimeout(() => {
+      window.location.reload();
+    }, 3000);
 
   }, [selectedBoardId])
 
@@ -39,10 +41,16 @@ const OrganiseBoard = ({ userId, pins, setShowOrganiseBoard, profileBoardId }) =
     }
   }
 
+  const handleCreateBoard = () => {
+    
+    setShowChooseBoard(false);
+    setShowCreateBoard(true);
+  }
+
   return (
     <>
     <div 
-      className={`${showChooseBoard ? 'hidden' : 'absolute'} top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] z-50 shadow-2xl border-[1px] border-gray-500 rounded-3xl w-[90vw] sm:w-[600px] xl:w-[700px] h-[60vh] bg-white p-3 overflow-scroll flex flex-col`}
+      className={`${showChooseBoard ? 'hidden' : 'absolute'} top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] z-50 shadow-2xl border-[1px] border-gray-500 rounded-3xl w-[90vw] sm:w-[700px] h-[75vh] bg-white p-3 flex flex-col`}
     >
       <div className='w-full flex flex-row justify-center my-8'>
         <h2 className='text-md md:text-xl lg:text-3xl font-semibold'>
@@ -61,10 +69,11 @@ const OrganiseBoard = ({ userId, pins, setShowOrganiseBoard, profileBoardId }) =
         </button>
       </div>
       
-
+      <div className='overflow-scroll h-full'>
       <MasonryLayout userId={userId} pins={pins} selectedPins={selectedPins} togglePin={togglePin} />
+      </div>
 
-      <div className='w-full h-full flex justify-end items-end p-3'>
+      <div className='w-full flex justify-end items-end p-3'>
         <button
           type="button"
           disabled={!selectedPins.length}
@@ -81,14 +90,23 @@ const OrganiseBoard = ({ userId, pins, setShowOrganiseBoard, profileBoardId }) =
     {(showChooseBoard && selectedPins.length) ? (
       <ChooseBoard 
         setShowChooseBoard={setShowChooseBoard}
-        userId={userId}
-        widthVal="[90vw]"
-        heightVal="[70vh]"
         setSelectedBoardId={setSelectedBoardId}
+        handleCreateBoard={handleCreateBoard}
       />
     ): (
       null
     )}
+
+    {showCreateBoard ? (
+      <CreateBoard 
+        setShowCreateBoard={setShowCreateBoard} 
+        selectedPins={selectedPins}
+        profileBoardId={profileBoardId}
+      />
+    ): (
+      null
+    )
+    }
     </>
   );
 }

@@ -1,19 +1,9 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { useRouter } from 'next/router';
+import React, { useState } from 'react';
 import SignUp from '../components/SignUp';
 import SignIn from '../components/SignIn';
-import { StateContext } from '../context/StateContext';
 
 const Login = () => {
-  const { user } = useContext(StateContext);
-
   const [showSignUp, setShowSignUp] = useState(false);
-
-  const router = useRouter();
-
-  // useEffect(() => {
-  //   if (user) router.replace("/");
-  // }, [user]);
 
   return (
     <div 
@@ -45,6 +35,19 @@ const Login = () => {
   );
 }
 
-export default Login
+export const getServerSideProps = async (context) => {
+  if (context.req.cookies.currentUser) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      }
+    }
+  }
 
-// const user = localStorage.getItem('user') !== 'undefined' ? JSON.parse(localStorage.getItem('user')) : localStorage.clear();
+  return {
+    props: {}
+  }
+}
+
+export default Login
