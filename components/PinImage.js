@@ -4,6 +4,7 @@ import Image from 'next/future/image';
 import { FiArrowUpRight } from "react-icons/fi";
 import { AiTwotoneDelete } from 'react-icons/ai';
 import { Circles } from 'react-loader-spinner';
+import axios from 'axios';
 
 import { urlFor } from '../lib/client';
 import { StateContext } from '../context/StateContext';
