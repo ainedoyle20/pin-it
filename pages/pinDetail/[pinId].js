@@ -73,7 +73,7 @@ const PinDetail = ({ pinDetail, similarPins }) => {
               className="shadow-2xl w-[90vw] min-h-[75vh] rounded-2xl flex flex-col md:flex-row mt-8 mb-[50px]"
           >
               <div className='w-full md:w-[50%] border-b-2 md:border-b-[0] md:border-r-2 border-gray-300 p-5'>
-                  <PinImage pinUrl={pinUrl} destination={destination} postedBy={postedBy} image={image} />
+                  <PinImage _id={_id} pinUrl={pinUrl} destination={destination} postedBy={postedBy} image={image} />
               </div>
 
               <div className="flex flex-col p-5 pr-8 w-full md:w-[50%]">

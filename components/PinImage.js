@@ -9,7 +9,7 @@ import { urlFor } from '../lib/client';
 import { StateContext } from '../context/StateContext';
 import { BASE_URL } from '../lib/utils';
 
-const PinImage = ({ pinUrl, destination, postedBy, image }) => {
+const PinImage = ({ pinUrl, destination, postedBy, image, _id }) => {
   const { user } = useContext(StateContext);
 
   const deletePin = async (id) => {
